@@ -7,7 +7,8 @@
 //
 
 #import "AppDelegate.h"
-#import "PYNetNormal.h"
+#import "PYNetUpload.h"
+#import "NSData+Expand.h"
 
 @interface AppDelegate ()
 
@@ -17,16 +18,13 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-//     Override point for customization after application launch.
-    PYNetNormal * nnw = [PYNetNormal new];
-    [nnw setBlockAuthenticationChallenge:^BOOL(NSURLAuthenticationChallenge * _Nullable challenge, PYNetNormal * _Nonnull target){
-        return false;
+    PYNetwork * network = [PYNetwork new];
+    network.url = @"https://support.apple.com";
+    [network setBlockComplete:^(id _Nullable data, PYNetwork * _Nonnull target){
+        NSLog([((NSData *)data) toString]);
     }];
-    [nnw setBlockComplete:^(NSInteger status, id _Nullable data, PYNetNormal * _Nonnull target){
-        
-    }];
-    nnw.url = @"https://ss0.bdstatic.com/9r-1bjml2gcT8tyhnq/fcnp-ip/3232/pic/b41ff41ff014da3cd9e85c3e3bfab29c.jpg" ;
-    [nnw requestGetWithParams:nil];
+    [network resume];
+//    [network resumeWithData:[NSData new]];
     return YES;
 }
 

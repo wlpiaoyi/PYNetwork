@@ -50,22 +50,26 @@ PYINITPARAMS;
 -(void) initParams{
     
     self.dnw = [PYNetDownload new];
-    [self.dnw setBlockReceiveChallenge:^BOOL(id  _Nullable data, PYNetDownload * _Nonnull target) {
+    [self.dnw setBlockReceiveChallenge:^BOOL(id  _Nullable data, PYNetwork * _Nonnull target) {
         return true;
     }];
     __unsafe_unretained typeof(self) uself = self;
-    [self.dnw setBlockProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {
+    [self.dnw setBlockDownloadProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {
         if(uself.blockProgress){
             uself.blockProgress((double)currentBytes/(double)totalBytes, uself);
         }
     }];
-    [self.dnw setBlockSuccess:^(id  _Nullable data, PYNetDownload * _Nonnull target) {
+    [self.dnw setBlockComplete:^(id  _Nullable data, PYNetwork * _Nonnull target) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 [uself.aiv stopAnimating];
             });  
         });
         uself.cachesUrl = nil;
+        if(data  != nil && [data isKindOfClass:[NSError class]]){
+            NSLog(@"[erro code:%ld] [erro domain;%@] [erro description:%@]", (long)((NSError*)data).code, ((NSError*)data).domain, ((NSError*)data).description);
+            return;
+        }
         if(data == nil || ![data isKindOfClass:[NSString class]]){
             return;
         }
@@ -92,16 +96,6 @@ PYINITPARAMS;
             NSLog(@"%@ image errocode:%ld, errodomain:%@",NSStringFromClass([PYNetImageView class]), (long)[erro code], [erro domain]);
         }
     }];
-    [self.dnw setBlockFaild:^(id  _Nullable data, PYNetDownload * _Nonnull target) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [uself.aiv stopAnimating];
-                if(uself.blockDisplay){
-                    uself.blockDisplay(false,false, uself);
-                }
-            });
-        });;
-    }];
     [self.dnw setBlockCancel:^(id  _Nullable data, PYNetDownload * _Nonnull target) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -127,7 +121,7 @@ PYINITPARAMS;
 }
 -(void) setImgUrl:(NSString *)imgUrl{
     _imgUrl = imgUrl;
-    if([self.dnw.stringUrl isEqual:self.imgUrl]){
+    if([self.dnw.url isEqual:self.imgUrl]){
         return;
     }
     [self.dnw cancel];
@@ -149,7 +143,7 @@ PYINITPARAMS;
         return;
     }
     
-    self.dnw.stringUrl = imgUrl;
+    self.dnw.url = imgUrl;
     [self.dnw resume];
     [self.aiv startAnimating];
 }
