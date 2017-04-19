@@ -10,8 +10,6 @@
 
 @interface PYNetUpload : PYNetwork
 
--(BOOL) resumeWithData:(nonnull NSData *) data;
--(BOOL) resumeWithPath:(nonnull NSString *) path;
-
+-(BOOL) resumeWithData:(nonnull NSData *) data fileName:(nonnull NSString *) fileName contentType:(nonnull NSString *)contentType;
 
 @end

@@ -53,6 +53,7 @@
 
 #define PYSOULDLAYOUTP @property (nonatomic) CGSize __layoutSubviews_UseSize;
 #define PYSOULDLAYOUTM -(BOOL) __layoutSubviews_Size_Compare{ if(CGSizeEqualToSize(self.__layoutSubviews_UseSize, self.bounds.size)){return false;}self.__layoutSubviews_UseSize = self.bounds.size;return true;}
+#define PYSOULDLAYOUTE [self __layoutSubviews_Size_Compare]
 
 extern const NSString * _Nonnull documentDir;
 extern const NSString * _Nonnull cachesDir;

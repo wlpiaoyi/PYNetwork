@@ -7,6 +7,27 @@
 //
 
 #import "pyutilea.h"
+#ifndef pyutilea
+#import <UIKit/UIKit.h>
+#import <Utile/EXTScope.h>
+#import <Utile/PYUtile.h>
+#import <Utile/NSString+Expand.h>
+#import <Utile/NSData+Expand.h>
+#import <Utile/NSDictionary+Expand.h>
+#import <Utile/PYReachabilityListener.h>
+#import <Utile/PYViewAutolayoutCenter.h>
+#define PYPNSNA @property (nonatomic, strong, nullable)
+#define PYPNSNN @property (nonatomic, strong, nonnull)
+#define PYPNRNN @property (nonatomic, readonly, nonnull)
+#define PYPNCNA @property (nonatomic, copy, nullable)
+#define PYPNA @property (nonatomic, assign)
+#define PYINITPARAMS -(instancetype) initWithFrame:(CGRect)frame{if(self = [super initWithFrame:frame]){[self initParams];}return self;} -(instancetype) initWithCoder:(NSCoder *)aDecoder{ if(self = [super initWithCoder:aDecoder]){ [self initParams];}return self;}
+
+#define PYSOULDLAYOUTP @property (nonatomic) CGSize __layoutSubviews_UseSize;
+#define PYSOULDLAYOUTM -(BOOL) __layoutSubviews_Size_Compare{ if(CGSizeEqualToSize(self.__layoutSubviews_UseSize, self.bounds.size)){return false;}self.__layoutSubviews_UseSize = self.bounds.size;return true;}
+#define PYSOULDLAYOUTE [self __layoutSubviews_Size_Compare]
+#endif
+
 
 static NSString * _Nonnull  PYNetworkCache;
 static NSTimeInterval   PYNetworkOutTime;
@@ -37,7 +58,6 @@ PYPNCNA void (^blockComplete)(id _Nullable data, PYNetwork * _Nonnull target);
 
 PYPNSNA NSString * certificationName;
 PYPNSNA NSString * certificationPassword;
-
 -(BOOL) resume;
 -(BOOL) suspend;
 -(BOOL) cancel;
@@ -45,5 +65,7 @@ PYPNSNA NSString * certificationPassword;
 +(nonnull NSURLRequest *) createRequestWithUrlString:(nonnull NSString*) urlString
                                           httpMethod:(nullable NSString*) httpMethod
                                                heads:(nullable NSDictionary<NSString *, NSString *> *) heads
-                                              params:(nullable NSDictionary<NSString *, NSString *> *) params;
+                                              params:(nullable NSData *) params;
++(nonnull NSData *) parseDictionaryToHttpBody:(nullable NSDictionary<NSString*, id> *) params
+                                  contentType:(nonnull NSString *) contentType;
 @end

@@ -8,7 +8,6 @@
 
 #import "PYNetwork.h"
 
-
 @interface PYNetDownload : PYNetwork
 
 PYPNRNN NSString * identifier;

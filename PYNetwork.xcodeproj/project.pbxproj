@@ -11,15 +11,9 @@
 		150BF6911EA06DA300E320BB /* PYNetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 150BF6901EA06DA300E320BB /* PYNetwork.m */; };
 		150BF6921EA0A17F00E320BB /* PYNetwork.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 150BF68F1EA06DA300E320BB /* PYNetwork.h */; };
 		150BF6931EA0A18600E320BB /* PYNetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 150BF6901EA06DA300E320BB /* PYNetwork.m */; };
-		150F06E31E9CB46800D3B4B4 /* PYNetNormal.m in Sources */ = {isa = PBXBuildFile; fileRef = 150F06DF1E9CB46800D3B4B4 /* PYNetNormal.m */; };
 		150F06E41E9CB46800D3B4B4 /* PYNetDownload.m in Sources */ = {isa = PBXBuildFile; fileRef = 150F06E21E9CB46800D3B4B4 /* PYNetDownload.m */; };
-		150F06E71E9CB4E000D3B4B4 /* PYNetImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 150F06E51E9CB4E000D3B4B4 /* PYNetImageView.m */; };
 		150F06F11E9CC3C200D3B4B4 /* pynetworka.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 150F06EE1E9CC3C200D3B4B4 /* pynetworka.h */; };
-		150F06F51E9CC3D300D3B4B4 /* PYNetImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 150F06E51E9CB4E000D3B4B4 /* PYNetImageView.m */; };
-		150F06F61E9CC3D300D3B4B4 /* PYNetNormal.m in Sources */ = {isa = PBXBuildFile; fileRef = 150F06DF1E9CB46800D3B4B4 /* PYNetNormal.m */; };
 		150F06F71E9CC3D300D3B4B4 /* PYNetDownload.m in Sources */ = {isa = PBXBuildFile; fileRef = 150F06E21E9CB46800D3B4B4 /* PYNetDownload.m */; };
-		150F06F81E9CC3F300D3B4B4 /* PYNetImageView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 150F06E61E9CB4E000D3B4B4 /* PYNetImageView.h */; };
-		150F06F91E9CC3F300D3B4B4 /* PYNetNormal.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 150F06E01E9CB46800D3B4B4 /* PYNetNormal.h */; };
 		150F06FA1E9CC3F300D3B4B4 /* PYNetDownload.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 150F06E11E9CB46800D3B4B4 /* PYNetDownload.h */; };
 		15A21D461E9B6ABB0078D3FD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 15A21D451E9B6ABB0078D3FD /* main.m */; };
 		15A21D491E9B6ABB0078D3FD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 15A21D481E9B6ABB0078D3FD /* AppDelegate.m */; };
@@ -28,6 +22,12 @@
 		15A21D511E9B6ABB0078D3FD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 15A21D501E9B6ABB0078D3FD /* Assets.xcassets */; };
 		15A21D541E9B6ABB0078D3FD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 15A21D521E9B6ABB0078D3FD /* LaunchScreen.storyboard */; };
 		15A21D811E9B6C030078D3FD /* libpyutilea.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 15A21D801E9B6C030078D3FD /* libpyutilea.a */; };
+		15CC07C51EA5B8BC0006B505 /* 1.png in Resources */ = {isa = PBXBuildFile; fileRef = 15CC07C41EA5B8BC0006B505 /* 1.png */; };
+		15CC07CE1EA71BB90006B505 /* PYNetNormal.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CC07CC1EA71BB90006B505 /* PYNetNormal.m */; };
+		15CC08011EA7564D0006B505 /* PYNetUpload.m in Sources */ = {isa = PBXBuildFile; fileRef = 150BF68D1EA06CDE00E320BB /* PYNetUpload.m */; };
+		15CC08021EA7564D0006B505 /* PYNetNormal.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CC07CC1EA71BB90006B505 /* PYNetNormal.m */; };
+		15CC08031EA756590006B505 /* PYNetUpload.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 150BF68C1EA06CDE00E320BB /* PYNetUpload.h */; };
+		15CC08041EA756590006B505 /* PYNetNormal.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15CC07CD1EA71BB90006B505 /* PYNetNormal.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,9 +37,9 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				15CC08031EA756590006B505 /* PYNetUpload.h in CopyFiles */,
+				15CC08041EA756590006B505 /* PYNetNormal.h in CopyFiles */,
 				150BF6921EA0A17F00E320BB /* PYNetwork.h in CopyFiles */,
-				150F06F81E9CC3F300D3B4B4 /* PYNetImageView.h in CopyFiles */,
-				150F06F91E9CC3F300D3B4B4 /* PYNetNormal.h in CopyFiles */,
 				150F06FA1E9CC3F300D3B4B4 /* PYNetDownload.h in CopyFiles */,
 				150F06F11E9CC3C200D3B4B4 /* pynetworka.h in CopyFiles */,
 			);
@@ -52,12 +52,8 @@
 		150BF68D1EA06CDE00E320BB /* PYNetUpload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PYNetUpload.m; sourceTree = "<group>"; };
 		150BF68F1EA06DA300E320BB /* PYNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYNetwork.h; sourceTree = "<group>"; };
 		150BF6901EA06DA300E320BB /* PYNetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PYNetwork.m; sourceTree = "<group>"; };
-		150F06DF1E9CB46800D3B4B4 /* PYNetNormal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PYNetNormal.m; sourceTree = "<group>"; };
-		150F06E01E9CB46800D3B4B4 /* PYNetNormal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYNetNormal.h; sourceTree = "<group>"; };
 		150F06E11E9CB46800D3B4B4 /* PYNetDownload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYNetDownload.h; sourceTree = "<group>"; };
 		150F06E21E9CB46800D3B4B4 /* PYNetDownload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PYNetDownload.m; sourceTree = "<group>"; };
-		150F06E51E9CB4E000D3B4B4 /* PYNetImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PYNetImageView.m; sourceTree = "<group>"; };
-		150F06E61E9CB4E000D3B4B4 /* PYNetImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYNetImageView.h; sourceTree = "<group>"; };
 		150F06EC1E9CC3C200D3B4B4 /* libpynetworka.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpynetworka.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		150F06EE1E9CC3C200D3B4B4 /* pynetworka.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pynetworka.h; sourceTree = "<group>"; };
 		15A21D411E9B6ABB0078D3FD /* PYNetwork.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PYNetwork.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,6 +99,9 @@
 		15A21D7E1E9B6C030078D3FD /* UIViewController+HookOrientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+HookOrientation.h"; sourceTree = "<group>"; };
 		15A21D7F1E9B6C030078D3FD /* UIViewController+HookView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+HookView.h"; sourceTree = "<group>"; };
 		15A21D801E9B6C030078D3FD /* libpyutilea.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpyutilea.a; sourceTree = "<group>"; };
+		15CC07C41EA5B8BC0006B505 /* 1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1.png; sourceTree = "<group>"; };
+		15CC07CC1EA71BB90006B505 /* PYNetNormal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PYNetNormal.m; sourceTree = "<group>"; };
+		15CC07CD1EA71BB90006B505 /* PYNetNormal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYNetNormal.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +134,7 @@
 		15A21D381E9B6ABB0078D3FD = {
 			isa = PBXGroup;
 			children = (
+				15CC07C41EA5B8BC0006B505 /* 1.png */,
 				15A21D5E1E9B6C030078D3FD /* include */,
 				15A21D801E9B6C030078D3FD /* libpyutilea.a */,
 				15A21D431E9B6ABB0078D3FD /* PYNetwork */,
@@ -161,10 +161,8 @@
 				150F06E21E9CB46800D3B4B4 /* PYNetDownload.m */,
 				150BF68C1EA06CDE00E320BB /* PYNetUpload.h */,
 				150BF68D1EA06CDE00E320BB /* PYNetUpload.m */,
-				150F06E61E9CB4E000D3B4B4 /* PYNetImageView.h */,
-				150F06E51E9CB4E000D3B4B4 /* PYNetImageView.m */,
-				150F06E01E9CB46800D3B4B4 /* PYNetNormal.h */,
-				150F06DF1E9CB46800D3B4B4 /* PYNetNormal.m */,
+				15CC07CD1EA71BB90006B505 /* PYNetNormal.h */,
+				15CC07CC1EA71BB90006B505 /* PYNetNormal.m */,
 				15A21D471E9B6ABB0078D3FD /* AppDelegate.h */,
 				15A21D481E9B6ABB0078D3FD /* AppDelegate.m */,
 				15A21D4A1E9B6ABB0078D3FD /* ViewController.h */,
@@ -317,6 +315,7 @@
 			files = (
 				15A21D541E9B6ABB0078D3FD /* LaunchScreen.storyboard in Resources */,
 				15A21D511E9B6ABB0078D3FD /* Assets.xcassets in Resources */,
+				15CC07C51EA5B8BC0006B505 /* 1.png in Resources */,
 				15A21D4F1E9B6ABB0078D3FD /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -328,9 +327,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				15CC08011EA7564D0006B505 /* PYNetUpload.m in Sources */,
+				15CC08021EA7564D0006B505 /* PYNetNormal.m in Sources */,
 				150BF6931EA0A18600E320BB /* PYNetwork.m in Sources */,
-				150F06F51E9CC3D300D3B4B4 /* PYNetImageView.m in Sources */,
-				150F06F61E9CC3D300D3B4B4 /* PYNetNormal.m in Sources */,
 				150F06F71E9CC3D300D3B4B4 /* PYNetDownload.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -340,12 +339,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				150F06E41E9CB46800D3B4B4 /* PYNetDownload.m in Sources */,
+				15CC07CE1EA71BB90006B505 /* PYNetNormal.m in Sources */,
 				150BF6911EA06DA300E320BB /* PYNetwork.m in Sources */,
-				150F06E31E9CB46800D3B4B4 /* PYNetNormal.m in Sources */,
 				15A21D4C1E9B6ABB0078D3FD /* ViewController.m in Sources */,
 				15A21D491E9B6ABB0078D3FD /* AppDelegate.m in Sources */,
 				15A21D461E9B6ABB0078D3FD /* main.m in Sources */,
-				150F06E71E9CB4E000D3B4B4 /* PYNetImageView.m in Sources */,
 				150BF68E1EA06CDE00E320BB /* PYNetUpload.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -7,8 +7,6 @@
 //
 
 #import "PYNetDownload.h"
-#import "pyutilea.h"
-
 
 @interface PYNetDownload()<NSURLSessionDelegate>
 @property (nonatomic) BOOL flagBeginDownload;
@@ -98,7 +96,7 @@
         if (!self.sessionTask) {
             return false;
         }
-       @weakify(self)
+       @unsafeify(self)
         [(NSURLSessionDownloadTask*)self.sessionTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
             @strongify(self)
             if (self._blockCancel_) {
