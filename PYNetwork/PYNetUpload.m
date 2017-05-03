@@ -54,16 +54,13 @@
     }
     return true;
 }
--(BOOL) resumeWithPath:(nonnull NSString *) path  fileName:(nonnull NSString *) fileName contentType:(nonnull NSString *)contentType{
+-(BOOL) resumeWithPath:(nonnull NSString *) path{
     @synchronized (self) {
         if(self.url == nil) return false;
         
-        NSMutableDictionary * mHeaders = self.heads ? [self.heads mutableCopy] : [NSMutableDictionary new];
-        NSString *uuid = [PYNetUpload uuid];
-        [mHeaders setDictionary:@{@"Content-Type":[NSString stringWithFormat:@"multipart/form-data;boundary=%@",uuid]}];
-        NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:self.params params:nil];
+        NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:nil];
         @unsafeify(self);
-        self.uploadTask = [self.session uploadTaskWithRequest:request fromFile: [NSURL URLWithString:path] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        self.uploadTask = [self.session uploadTaskWithRequest:request fromFile: [NSURL fileURLWithPath:path] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             @strongify(self);
             if (self.blockComplete) {
                 self.blockComplete(error ? error : data,self);
@@ -74,4 +71,5 @@
     }
     return true;
 }
+
 @end

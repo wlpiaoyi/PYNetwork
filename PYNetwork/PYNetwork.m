@@ -6,9 +6,8 @@
 //  Copyright © 2017年 wlpiaoyi. All rights reserved.
 //
 
+
 #import "PYNetwork.h"
-
-
 
 @interface PYIdentityAndTrust:NSObject
 PYPNA SecIdentityRef  secIdentity;
