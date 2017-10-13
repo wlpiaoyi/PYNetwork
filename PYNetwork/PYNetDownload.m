@@ -45,7 +45,8 @@
             
             NSURLSessionDownloadTask *downloadTask = nil;
             if(self.url){
-                NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:self.params];
+                NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
+                NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData];
                 downloadTask = [self.session downloadTaskWithRequest:request];
             }
             if (!downloadTask) {return false;}
@@ -67,7 +68,13 @@
 -(nonnull NSURLSession*) createSession{
     //这个sessionConfiguration 很重要， com.zyprosoft.xxx  这里，这个com.company.这个一定要和 bundle identifier 里面的一致，否则ApplicationDelegate 不会调用handleEventsForBackgroundURLSession代理方法
     _identifier = PYUUID(64);
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:self.identifier];
+    NSURLSessionConfiguration *configuration = nil;
+    if(IOS8_OR_LATER){
+        configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:self.identifier];
+    }else{
+        configuration = [NSURLSessionConfiguration backgroundSessionConfiguration:self.identifier];
+    }
+    
     configuration.URLCache =   [[NSURLCache alloc] initWithMemoryCapacity:20 * 1024*1024 diskCapacity:100 * 1024*1024 diskPath:PYNetworkCache];
     configuration.requestCachePolicy = NSURLRequestUseProtocolCachePolicy;
     return [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];

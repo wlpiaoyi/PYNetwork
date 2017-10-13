@@ -10,21 +10,20 @@
 #import "PYNetwork.h"
 
 @interface PYIdentityAndTrust:NSObject
-PYPNA SecIdentityRef  secIdentity;
-PYPNA SecTrustRef secTrust;
-PYPNSNN NSArray * cerArray;
+kPNA SecIdentityRef  secIdentity;
+kPNA SecTrustRef secTrust;
+kPNSNN NSArray * cerArray;
 @end
-
 
 static NSString *  PYNetworkCache  = @"org.personal.wlpiaoyi.network";
 static NSTimeInterval   PYNetworkOutTime = 30;
-
+static NSInteger PYNetworkActivityIndicatorIndex = 0;
 
 //==>传输方法
  NSString * _Nonnull PYNET_HTTP_GET = @"GET";
-const NSString * _Nonnull PYNET_HTTP_POST = @"POST";
-const NSString * _Nonnull PYNET_HTTP_PUT = @"PUT";
-const NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
+NSString * _Nonnull PYNET_HTTP_POST = @"POST";
+NSString * _Nonnull PYNET_HTTP_PUT = @"PUT";
+NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
 ///<==
 @interface PYNetwork()<NSURLSessionDelegate>
 @end
@@ -46,12 +45,30 @@ const NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
         NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData];
         __unsafe_unretained typeof(self) uself = self;
         self.sessionTask = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            if (uself.blockComplete) {
-                uself.blockComplete(error ? error : data,uself);
+            @try{
+                if (uself.blockComplete) {
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            uself.blockComplete(error ? error : data,uself);
+                        });
+                    });
+                }
+            }@finally{
+                [uself cancel];
             }
         }];
         if(uself.sessionTask == nil) return false;
         [uself.sessionTask resume];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            @synchronized([PYNetwork class]){
+                PYNetworkActivityIndicatorIndex++;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
+                });
+            }
+        });
+        
     }
     return true;
 }
@@ -70,7 +87,16 @@ const NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
             return false;
         }
         [self.sessionTask cancel];
+        self.sessionTask = nil;
     }
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @synchronized([PYNetwork class]){
+            PYNetworkActivityIndicatorIndex--;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
+            });
+        }
+    });
     return true;
 }
 
@@ -191,17 +217,18 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend{
     }else if(contentType.length > 29 && [[contentType substringToIndex:29] isEqual:@"multipart/form-data;boundary="]){
         NSMutableString * mString = [NSMutableString new];
         NSString * uuid = [contentType substringFromIndex:29];
-        for(NSString * key in params.allKeys){
-            if([key isEqual:@"fileName"] || [key isEqual:@"contentType"] || [key isEqual:uuid]) continue;
-            [mString appendFormat:@"--%@\r\n",uuid];
-            [mString appendFormat:@"Content-Disposition:form-data; name=\"%@\";\r\n\r\n", key];
-            [mString appendFormat:@"%@\r\n", params[key]];
-        }
         [mString appendFormat:@"--%@\r\n",uuid];
         [mString appendFormat:@"Content-Disposition:form-data; name=\"file\"; filename=\"%@\"\r\nContent-Type:%@\r\n\r\n", params[@"fileName"], params[@"contentType"]];
         NSMutableData * mdata = [[mString toData] mutableCopy];
         [mdata appendData:params[uuid]];
-        [mdata appendData:[[NSString stringWithFormat:@"\r\n--%@--",uuid] toData]];
+        [mdata appendData:[[NSString stringWithFormat:@"\r\n--%@",uuid] toData]];
+        mString = [NSMutableString new];
+        for(NSString * key in params.allKeys){
+            if([key isEqual:@"fileName"] || [key isEqual:@"contentType"] || [key isEqual:uuid]) continue;
+            [mString appendFormat:@"\r\nContent-Disposition:form-data; name=\"%@\"\r\n\r\n", key];
+            [mString appendFormat:@"%@\r\n--%@", params[key], uuid];
+        }
+        [mdata appendData:[mString toData]];
         return mdata;
     }
     return nil;
