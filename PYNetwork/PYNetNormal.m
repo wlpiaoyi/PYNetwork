@@ -21,7 +21,6 @@
 const NSString * HTTP_HEAD_KEY_ContentType = @"Content-Type";
 const NSString * HTTP_HEAD_VALUE_ContentType_JSON = @"application/json";
 const NSString * HTTP_HEAD_VALUE_ContentType_Normal = @"application/x-www-form-urlencoded";
-const NSString * HTTP_HEAD_VALUE_ContentType_Encode = @"charset=";
 
 
 //==>传输方法
@@ -43,7 +42,7 @@ CGFloat PYNetNormalOutTime = 30.0;
     if (self = [super init]) {
         self.outTime = PYNetNormalOutTime;
         self.encoding = NSUTF8StringEncoding;
-        self._headRequest_ = @{HTTP_HEAD_KEY_ContentType:[NSString stringWithFormat:@"%@;%@UTF-8",HTTP_HEAD_VALUE_ContentType_Normal,HTTP_HEAD_VALUE_ContentType_Encode]};
+        self._headRequest_ = @{HTTP_HEAD_KEY_ContentType:[NSString stringWithFormat:@"%@;charset=UTF-8",HTTP_HEAD_VALUE_ContentType_Normal]};
     }
     return self;
 }
@@ -259,42 +258,30 @@ CGFloat PYNetNormalOutTime = 30.0;
 
 - (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge{
     
+    assert(challenge !=nil);
+    
     if(self.blockAuthenticationChallenge != nil && self.blockAuthenticationChallenge(challenge, self)){
-        NSURLCredential *   credential;
-        
-        NSURLProtectionSpace *  protectionSpace;
-        
-        SecTrustRef            trust;
-        
-        NSString *              host;
-        
-        SecCertificateRef      serverCert;
-        
-        assert(challenge !=nil);
-        
+        NSURLCredential * credential;
+        NSURLProtectionSpace * protectionSpace;
+        SecTrustRef trust;
+        NSString * host;
+        SecCertificateRef serverCert;
+
         protectionSpace = [challenge protectionSpace];
         assert(protectionSpace != nil);
-        
         
         trust = [protectionSpace serverTrust];
         assert(trust != NULL);
         
-        
-        
         credential = [NSURLCredential credentialForTrust:trust];
-        
         assert(credential != nil);
         
         host = [[challenge protectionSpace] host];
         
         if (SecTrustGetCertificateCount(trust) > 0) {
-            
             serverCert = SecTrustGetCertificateAtIndex(trust, 0);
-            
         } else {
-            
             serverCert = NULL;
-            
         }
         [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
     }
@@ -330,5 +317,8 @@ CGFloat PYNetNormalOutTime = 30.0;
 
 +(void)setAllowsAnyHTTPSCertificate:(BOOL)inAllow forHost:(nonnull NSString *)inHost{
     [NSURLRequest setAllowsAnyHTTPSCertificate:inAllow forHost:inHost];
+}
+-(void) dealloc{
+    NSLog(@"adfadsfa=========>");
 }
 @end

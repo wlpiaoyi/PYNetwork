@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "PYNetUpload.h"
+#import "PYNetDownload.h"
 #import "NSData+Expand.h"
 
 @interface AppDelegate ()
@@ -18,6 +19,19 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    PYNetDownload * netd = [PYNetDownload new];
+    netd.url = @"https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo_top_ca79a146.png";
+    [netd setBlockReceiveChallenge:^BOOL(id  _Nullable data, PYNetwork * _Nonnull target) {
+        return true;
+    }];
+    [netd setBlockComplete:^(id  _Nullable data, PYNetwork * _Nonnull target) {
+        NSLog(@"");
+    }];
+    [netd setBlockCancel:^(id  _Nullable data, PYNetDownload * _Nonnull target) {
+        NSLog(@"");
+    }];
+    [netd resume];
+//    [netd cancel];
 //    PYNetUpload * network = [PYNetUpload new];
 //    network.method = PYNET_HTTP_POST;
 //    network.url = @"http://192.168.1.186:8081/upload";//@"http://staging.obt.slyi.cc/tmcs_uac/tmc/uploadImg.json";

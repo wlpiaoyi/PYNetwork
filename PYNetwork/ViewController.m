@@ -17,12 +17,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    PYNetwork * nw = [PYNetwork new];
-    [nw setUrl:@"https://www.baidu.com"];
-    [nw setBlockComplete:^(id  _Nullable data, PYNetwork * _Nonnull target) {
-        
-    }];
-    [nw resume];
+//    PYNetwork * nw = [PYNetwork new];
+//    [nw setBlockComplete:^(id  _Nullable data, PYNetwork * _Nonnull target) {
+//        NSLog(@"");
+//    }];
+//    [nw resume];
 }
 
 

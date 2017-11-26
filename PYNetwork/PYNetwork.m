@@ -29,11 +29,10 @@ NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
 @end
 
 @implementation PYNetwork
-
 -(nullable instancetype) init{
     if (self = [super init]) {
+        _isNetworkActivityIndicatorVisible = true;
         self.outTime = PYNetworkOutTime;
-        _session = [self createSession];
         self.method = (NSString *)PYNET_HTTP_GET;
     }
     return self;
@@ -41,33 +40,36 @@ NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
 -(BOOL) resume{
     @synchronized (self) {
         if(self.url == nil) return false;
+        self.session = [self createSession];
         NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
         NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData];
         __unsafe_unretained typeof(self) uself = self;
         self.sessionTask = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            @try{
-                if (uself.blockComplete) {
-                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            uself.blockComplete(error ? error : data,uself);
-                        });
+            if (uself.blockComplete) {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        uself.blockComplete(error ? error : data,uself);
+                        [uself cancel];
                     });
-                }
-            }@finally{
+                });
+            }else{
                 [uself cancel];
             }
         }];
         if(uself.sessionTask == nil) return false;
         [uself.sessionTask resume];
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            @synchronized([PYNetwork class]){
-                PYNetworkActivityIndicatorIndex++;
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
-                });
-            }
-        });
+        if(_isNetworkActivityIndicatorVisible){
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                @synchronized([PYNetwork class]){
+                    PYNetworkActivityIndicatorIndex++;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
+                    });
+                }
+            });
+            
+        }
         
     }
     return true;
@@ -83,32 +85,31 @@ NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
 }
 -(BOOL) cancel{
     @synchronized(self) {
+        [self setSession:nil];
         if (!self.sessionTask) {
             return false;
         }
         [self.sessionTask cancel];
         self.sessionTask = nil;
     }
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        @synchronized([PYNetwork class]){
-            PYNetworkActivityIndicatorIndex--;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
-            });
-        }
-    });
+    if(_isNetworkActivityIndicatorVisible){
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            @synchronized([PYNetwork class]){
+                PYNetworkActivityIndicatorIndex--;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
+                });
+            }
+        });
+    }
     return true;
 }
 
 
 #pragma mark - NSURLSessionDelegate ==>
-- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error{
-}
+- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error{}
 
-- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session{
-    
-}
-
+- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session{}
 
 //NSURLAuthenticationChallenge 中的protectionSpace对象存放了服务器返回的证书信息
 //如何处理证书?(使用、忽略、拒绝。。)
@@ -170,7 +171,7 @@ NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
     totalBytesSent:(int64_t)totalBytesSent
 totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend{
     if(self.blockSendProgress){
-        _blockSendProgress(self, bytesSent, totalBytesSent);
+        self.blockSendProgress(self, bytesSent, totalBytesSent);
     }
 }
 #pragma NSURLSessionTaskDelegate <==
@@ -198,7 +199,13 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend{
     return  request;
 }
 +(nonnull NSData *) parseDictionaryToHttpBody:(NSDictionary<NSString*, id> *) params contentType:(NSString *) contentType{
+    
     if(params == nil) return nil;
+    
+    if(!contentType || ![contentType isKindOfClass:[NSString class]] || contentType.length == 0){
+        contentType = @"application/x-www-form-urlencoded";
+    }
+    
     if([@"application/json" isEqual:contentType]){
         return [params toData];
     }else if([@"application/x-www-form-urlencoded" isEqual:contentType]){

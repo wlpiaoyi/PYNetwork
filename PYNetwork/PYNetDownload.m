@@ -8,7 +8,12 @@
 
 #import "PYNetDownload.h"
 
-@interface PYNetDownload()<NSURLSessionDelegate>
+@interface PYNetDownloadDelegate:NSObject<NSURLSessionDelegate,NSURLSessionDownloadDelegate>
+kPNSNA PYNetDownload * netDownload;
+@end
+
+@interface PYNetDownload()
+kPNSNA PYNetDownloadDelegate * delegate;
 @property (nonatomic) BOOL flagBeginDownload;
 @property (nonatomic, copy, nullable) void (^_blockCancel_)(id _Nullable data, PYNetDownload * _Nonnull target) ;
 @property (nonatomic, copy, nullable) void (^ _blockDownloadProgress_) (PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes);
@@ -18,6 +23,7 @@
 
 -(instancetype) init{
     if (self = [super init]) {
+        self.isNetworkActivityIndicatorVisible = false;
     }
     return self;
 }
@@ -40,9 +46,9 @@
 ///<==
 -(BOOL) resume{
     @synchronized(self) {
+        self.session = [self createSession];
         if (!self.sessionTask) {
             if (!self.session) {return false;}
-            
             NSURLSessionDownloadTask *downloadTask = nil;
             if(self.url){
                 NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
@@ -50,9 +56,9 @@
                 downloadTask = [self.session downloadTaskWithRequest:request];
             }
             if (!downloadTask) {return false;}
-            
+
             self.sessionTask = downloadTask;
-            
+
         }
     }
     [self.sessionTask resume];
@@ -75,9 +81,11 @@
         configuration = [NSURLSessionConfiguration backgroundSessionConfiguration:self.identifier];
     }
     
-    configuration.URLCache =   [[NSURLCache alloc] initWithMemoryCapacity:20 * 1024*1024 diskCapacity:100 * 1024*1024 diskPath:PYNetworkCache];
+    configuration.URLCache =  [[NSURLCache alloc] initWithMemoryCapacity:20 * 1024*1024 diskCapacity:100 * 1024*1024 diskPath:PYNetworkCache];
     configuration.requestCachePolicy = NSURLRequestUseProtocolCachePolicy;
-    return [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
+    self.delegate = [PYNetDownloadDelegate new];
+    self.delegate.netDownload = self;
+    return [NSURLSession sessionWithConfiguration:configuration delegate:self.delegate delegateQueue:[NSOperationQueue mainQueue]];
 }
 
 
@@ -100,7 +108,9 @@
 
 -(BOOL) cancel{
     @synchronized(self) {
+        self.flagBeginDownload = true;
         if (!self.sessionTask) {
+            self.delegate = nil;
             return false;
         }
        @unsafeify(self)
@@ -109,39 +119,12 @@
             if (self._blockCancel_) {
                 self._blockCancel_(resumeData, self);
             }
+            [super cancel];
+            self.delegate.netDownload = nil;
+            self.delegate = nil;
         }];
     }
     return true;
-}
-
-#pragma mark - NSURLSessionDownloadDelegate
-//这个方法用来跟踪下载数据并且根据进度刷新ProgressView
-- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite{
-    self.flagBeginDownload = true;
-    if (self._blockDownloadProgress_) {
-        self._blockDownloadProgress_(self, totalBytesWritten, totalBytesExpectedToWrite);
-    }
-}
-
-//下载任务完成,这个方法在下载完成时触发，它包含了已经完成下载任务得 Session Task,Download Task和一个指向临时下载文件得文件路径
-- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location{
-    NSString *relativePath = [location relativePath];
-    if (self.blockComplete) {
-        self.blockComplete(relativePath, self);
-    }
-}
-
-//从已经保存的数据中恢复下载任务的委托方法，fileOffset指定了恢复下载时的文件位移字节数：
-- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didResumeAtOffset:(int64_t)fileOffset expectedTotalBytes:(int64_t)expectedTotalBytes{
-    
-}
-
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error{
-    if (error) {
-        if (self.blockComplete) {
-            self.blockComplete(error,self);
-        }
-    }
 }
 
 
@@ -183,4 +166,40 @@
     });
 }
 
+@end
+
+
+@implementation PYNetDownloadDelegate
+
+#pragma mark - NSURLSessionDownloadDelegate
+//这个方法用来跟踪下载数据并且根据进度刷新ProgressView
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite{
+    self.netDownload.flagBeginDownload = true;
+    if (self.netDownload._blockDownloadProgress_) {
+        self.netDownload._blockDownloadProgress_(self.netDownload, totalBytesWritten, totalBytesExpectedToWrite);
+    }
+}
+
+//下载任务完成,这个方法在下载完成时触发，它包含了已经完成下载任务得 Session Task,Download Task和一个指向临时下载文件得文件路径
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location{
+    NSString *relativePath = [location relativePath];
+    if (self.netDownload.blockComplete) {
+        self.netDownload.blockComplete(relativePath, self.netDownload);
+        [self.netDownload cancel];
+    }
+}
+
+//从已经保存的数据中恢复下载任务的委托方法，fileOffset指定了恢复下载时的文件位移字节数：
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didResumeAtOffset:(int64_t)fileOffset expectedTotalBytes:(int64_t)expectedTotalBytes{
+    
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error{
+    if (error) {
+        if (self.netDownload.blockComplete) {
+            self.netDownload.blockComplete(error,self.netDownload);
+            [self.netDownload cancel];
+        }
+    }
+}
 @end

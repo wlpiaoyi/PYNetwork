@@ -13,6 +13,7 @@
 @implementation PYNetUpload
 -(instancetype) init{
     if (self = [super init]) {
+        self.isNetworkActivityIndicatorVisible = false;
     }
     return self;
 }
@@ -33,6 +34,7 @@
     @synchronized (self) {
         if(self.url == nil) return false;
         
+        self.session = [self createSession];
         NSMutableDictionary * mHeaders = self.heads ? [self.heads mutableCopy] : [NSMutableDictionary new];
         NSString *uuid = [PYNetUpload uuid];
         [mHeaders setDictionary:@{@"Content-Type":[NSString stringWithFormat:@"multipart/form-data;boundary=%@",uuid]}];
@@ -64,6 +66,7 @@
             @strongify(self);
             if (self.blockComplete) {
                 self.blockComplete(error ? error : data,self);
+                [self cancel];
             }
         }];
         if(self.uploadTask == nil) return false;
