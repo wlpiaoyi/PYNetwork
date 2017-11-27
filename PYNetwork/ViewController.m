@@ -17,11 +17,20 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    PYNetwork * nw = [PYNetwork new];
-//    [nw setBlockComplete:^(id  _Nullable data, PYNetwork * _Nonnull target) {
-//        NSLog(@"");
-//    }];
-//    [nw resume];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        while(true){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                PYNetwork * nw = [PYNetwork new];
+                nw.url = @"https://www.baidu.com";
+                [nw setBlockComplete:^(id  _Nullable data, PYNetwork * _Nonnull target) {
+                    NSLog(@"%@",[data description]);
+                }];
+                [nw resume];
+
+            });
+            [NSThread sleepForTimeInterval:0.5];
+        }
+    });
 }
 
 

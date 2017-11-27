@@ -19,6 +19,11 @@ extern NSString * _Nonnull PYNET_HTTP_PUT ;
 extern NSString * _Nonnull PYNET_HTTP_DELETE;
 ///<==
 
+@class PYNetwork;
+@interface PYNetworkDelegate:NSObject<NSURLSessionDelegate>
+kPNSNA PYNetwork * network;
+@end
+
 @interface PYNetwork : NSObject
 kPNA NSTimeInterval outTime;
 /**
@@ -26,7 +31,7 @@ kPNA NSTimeInterval outTime;
  */
 kPNA BOOL isNetworkActivityIndicatorVisible;
 kPNSNA id userInfo;
-kPNSNN NSURLSession * session;
+kPNSNA NSURLSession * session;
 
 kPNSNN NSString * url;
 kPNSNN NSString * method;

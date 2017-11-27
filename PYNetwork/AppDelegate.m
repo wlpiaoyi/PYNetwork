@@ -20,7 +20,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     PYNetDownload * netd = [PYNetDownload new];
-    netd.url = @"https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo_top_ca79a146.png";
+    netd.url = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1511767451861&di=d4fb1a8ba225446d1a23d36a0e154bdb&imgtype=0&src=http%3A%2F%2Fimg2.niutuku.com%2Fdesk%2F1208%2F1542%2Fntk-1542-29992.jpg";
     [netd setBlockReceiveChallenge:^BOOL(id  _Nullable data, PYNetwork * _Nonnull target) {
         return true;
     }];
