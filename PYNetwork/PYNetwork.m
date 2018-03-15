@@ -37,97 +37,140 @@ kPNSNA PYNetworkDelegate * delegate;
 @implementation PYNetwork
 -(nullable instancetype) init{
     if (self = [super init]) {
-        _isNetworkActivityIndicatorVisible = true;
+        _session = [self createSession];
         self.outTime = PYNetworkOutTime;
         self.method = (NSString *)PYNET_HTTP_GET;
     }
     return self;
 }
 -(BOOL) resume{
+    
     @synchronized (self) {
-        if(self.url == nil) return false;
-        self.session = [self createSession];
-        NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
-        NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData];
-        __unsafe_unretained typeof(self) uself = self;
-        self.sessionTask = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            if (uself.blockComplete) {
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        uself.blockComplete(error ? error : data,uself);
-                        [uself cancel];
-                    });
-                });
-            }else{
-                [uself cancel];
-            }
-        }];
-        if(uself.sessionTask == nil) return false;
-        [uself.sessionTask resume];
+        self.delegate.network = self;
+        if(self.state == PYNetworkStateResume) return false;
         
-        if(_isNetworkActivityIndicatorVisible){
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                @synchronized([PYNetwork class]){
-                    PYNetworkActivityIndicatorIndex++;
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
-                    });
-                }
-            });
-            
+        if(!self.sessionTask){//sessionTask 都为空则重新创建新的任务
+            self.sessionTask = [self createSessionTask];
         }
         
+        if(!self.sessionTask) return false;
+        
+        [self.sessionTask resume];
+        _state = PYNetworkStateResume;
+        
     }
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @synchronized([PYNetwork class]){
+            PYNetworkActivityIndicatorIndex++;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
+            });
+        }
+    });
+    
     return true;
+    
 }
 -(BOOL) suspend{
+    
     @synchronized(self) {
-        if (!self.sessionTask) {
-            return false;
-        }
+        
+        if(self.state == PYNetworkStateSuspend) return false;
+        if (!self.sessionTask) return false;
+        
         [self.sessionTask suspend];
+        _state = PYNetworkStateSuspend;
+        
     }
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @synchronized([PYNetwork class]){
+            PYNetworkActivityIndicatorIndex--;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
+            });
+        }
+    });
+    
     return true;
 }
+
 -(BOOL) cancel{
+    
     @synchronized(self) {
-        [self setSession:nil];
-        if (!self.sessionTask) {
-            return false;
-        }
+        
+        if(self.state == PYNetworkStateCancel) return false;
+        if (!self.sessionTask) return false;
+        
         [self.sessionTask cancel];
         self.sessionTask = nil;
+        
+        _state = PYNetworkStateCancel;
+        self.delegate.network = nil;
     }
-    if(_isNetworkActivityIndicatorVisible){
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            @synchronized([PYNetwork class]){
-                PYNetworkActivityIndicatorIndex--;
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
-                });
-            }
-        });
-    }
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @synchronized([PYNetwork class]){
+            PYNetworkActivityIndicatorIndex--;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
+            });
+        }
+    });
+    
     return true;
+    
+}
+
+
+-(void) interrupt{
+    if(self.session){
+        [self.session invalidateAndCancel];
+        _session = nil;
+    }
+    [self cancel];
 }
 
 
 
--(nonnull NSURLSession*) createSession{
+-(nullable NSURLSession*) createSession{
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    configuration.URLCache =   nil;//[[NSURLCache alloc] initWithMemoryCapacity:20 * 1024*1024 diskCapacity:100 * 1024*1024 diskPath:PYNetworkCache];
-    configuration.requestCachePolicy = NSURLRequestReturnCacheDataElseLoad;
+    configuration.URLCache =  [[NSURLCache alloc] initWithMemoryCapacity:20*1024*1024 diskCapacity:100*1024*1024 diskPath:PYNetworkCache];
+    configuration.requestCachePolicy = NSURLRequestReloadIgnoringCacheData;
     self.delegate = [PYNetworkDelegate new];
     self.delegate.network = self;
     return [NSURLSession sessionWithConfiguration:configuration delegate:self.delegate delegateQueue:[NSOperationQueue mainQueue]];
+}
+-(nullable NSURLSessionTask *) createSessionTask{
+    NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
+    NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
+    __unsafe_unretained typeof(self) uself = self;
+    if(!self.session) return nil;
+    return [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (uself.blockComplete) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    uself.blockComplete(error ? error : data,uself);
+                    [uself cancel];
+                });
+            });
+        }else{
+            [uself cancel];
+        }
+    }];
+}
+-(void) dealloc{
+    [self interrupt];
 }
 
 +(nonnull NSURLRequest *) createRequestWithUrlString:(nonnull NSString*) urlString
                                           httpMethod:(nullable NSString*) httpMethod
                                                heads:(nullable NSDictionary<NSString *, NSString *> *) heads
-                                              params:(nullable NSData *) params{
+                                              params:(nullable NSData *) params
+                                             outTime:(CGFloat) outTime{
     NSURL *url = [NSURL URLWithString:urlString];
-    NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:url];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:outTime];
     request.HTTPMethod = httpMethod;
     if(heads != nil){
         for (NSString * key in heads.allKeys) {

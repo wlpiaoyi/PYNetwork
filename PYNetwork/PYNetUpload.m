@@ -8,20 +8,22 @@
 
 #import "PYNetUpload.h"
 @interface PYNetUpload()<NSURLSessionDelegate>
-@property (nonatomic, strong, nonnull) NSURLSessionUploadTask * uploadTask;
+
+PYPNSNA NSData * updateData;
+PYPNSNA NSString * fileName;
+PYPNSNA NSString * contentType;
+
+PYPNSNA NSString * filePath;
+
 @end
 @implementation PYNetUpload
 -(instancetype) init{
     if (self = [super init]) {
-        self.isNetworkActivityIndicatorVisible = false;
+        self.method = PYNET_HTTP_PUT;
     }
     return self;
 }
 
--(BOOL) resume{
-    NSAssert(false, @"PYNetupload is not support resume");
-    return false;
-}
 +(NSString *) uuid{
     CFUUIDRef uuid_ref = CFUUIDCreate(NULL);
     CFStringRef uuid_string_ref= CFUUIDCreateString(NULL, uuid_ref);
@@ -31,48 +33,61 @@
     return [uuid lowercaseString];
 }
 -(BOOL) resumeWithData:(nonnull NSData *) data fileName:(nonnull NSString *) fileName contentType:(nonnull NSString *)contentType{
-    @synchronized (self) {
-        if(self.url == nil) return false;
-        
-        self.session = [self createSession];
-        NSMutableDictionary * mHeaders = self.heads ? [self.heads mutableCopy] : [NSMutableDictionary new];
-        NSString *uuid = [PYNetUpload uuid];
-        [mHeaders setDictionary:@{@"Content-Type":[NSString stringWithFormat:@"multipart/form-data;boundary=%@",uuid]}];
-        NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:mHeaders params:nil];
-        NSMutableDictionary * mParams = self.params ? [self.params mutableCopy] : [NSMutableDictionary new];
-        [mParams setObject:fileName forKey:@"fileName"];
-        [mParams setObject:contentType forKey:@"contentType"];
-        [mParams setObject:data forKey:uuid];
-        NSData * mdata = [PYNetwork parseDictionaryToHttpBody:mParams contentType:mHeaders[@"Content-Type"]];
-        @unsafeify(self);
-        self.uploadTask = [self.session uploadTaskWithRequest:request fromData:mdata completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            @strongify(self);
-            if (self.blockComplete) {
-                self.blockComplete(error ? error : data,self);
-            }
-        }];
-        if(self.uploadTask == nil) return false;
-        [self.uploadTask resume];
-    }
-    return true;
+    self.updateData = data;
+    self.fileName = fileName;
+    self.contentType = contentType;
+    return [super resume];
 }
+
 -(BOOL) resumeWithPath:(nonnull NSString *) path{
-    @synchronized (self) {
-        if(self.url == nil) return false;
-        
-        NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:nil];
+    self.filePath = path;
+    return [super resume];
+}
+
+-(BOOL) resume{
+    return [super resume];
+}
+-(BOOL) suspend{
+    return [super suspend];
+}
+-(BOOL) cancel{
+    return [super cancel];
+}
+
+
+-(nullable NSURLSessionTask *) createSessionTask{
+    if(![NSString isEnabled:self.url]) return nil;
+    if([NSString isEnabled:self.filePath]){
+        NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
         @unsafeify(self);
-        self.uploadTask = [self.session uploadTaskWithRequest:request fromFile: [NSURL fileURLWithPath:path] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        return [self.session uploadTaskWithRequest:request fromFile: [NSURL fileURLWithPath:self.filePath] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             @strongify(self);
             if (self.blockComplete) {
                 self.blockComplete(error ? error : data,self);
                 [self cancel];
             }
         }];
-        if(self.uploadTask == nil) return false;
-        [self.uploadTask resume];
+    }else if(self.updateData && [NSString isEnabled:self.fileName] && [NSString isEnabled:self.contentType]){
+        NSMutableDictionary * mHeaders = self.heads ? [self.heads mutableCopy] : [NSMutableDictionary new];
+        NSString *uuid = [PYNetUpload uuid];
+        [mHeaders setDictionary:@{@"Content-Type":[NSString stringWithFormat:@"multipart/form-data;boundary=%@",uuid]}];
+        NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:mHeaders params:nil outTime:self.outTime];
+        NSMutableDictionary * mParams = self.params ? [self.params mutableCopy] : [NSMutableDictionary new];
+        [mParams setObject:self.fileName forKey:@"fileName"];
+        [mParams setObject:self.contentType forKey:@"contentType"];
+        [mParams setObject:self.updateData forKey:uuid];
+        NSData * mdata = [PYNetwork parseDictionaryToHttpBody:mParams contentType:mHeaders[@"Content-Type"]];
+        kAssign(self);
+        return [self.session uploadTaskWithRequest:request fromData:mdata completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            kStrong(self);
+            if (self.blockComplete) {
+                self.blockComplete(error ? error : data,self);
+            }
+            [self cancel];
+        }];
     }
-    return true;
+    return nil;
 }
+
 
 @end

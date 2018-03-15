@@ -23,12 +23,12 @@
                 PYNetwork * nw = [PYNetwork new];
                 nw.url = @"https://www.baidu.com";
                 [nw setBlockComplete:^(id  _Nullable data, PYNetwork * _Nonnull target) {
-                    NSLog(@"%@",[data description]);
+                    NSLog(@"%@",[data toString]);
                 }];
                 [nw resume];
 
             });
-            [NSThread sleepForTimeInterval:0.5];
+            [NSThread sleepForTimeInterval:2];
         }
     });
 }

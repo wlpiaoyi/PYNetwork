@@ -13,7 +13,6 @@
 
 @interface PYNetDownload()
 kPNSNA PYNetDownloadDelegate * delegate;
-@property (nonatomic) BOOL flagBeginDownload;
 @property (nonatomic, copy, nullable) void (^_blockCancel_)(id _Nullable data, PYNetDownload * _Nonnull target) ;
 @property (nonatomic, copy, nullable) void (^ _blockDownloadProgress_) (PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes);
 @end
@@ -22,7 +21,6 @@ kPNSNA PYNetDownloadDelegate * delegate;
 
 -(instancetype) init{
     if (self = [super init]) {
-        self.isNetworkActivityIndicatorVisible = false;
     }
     return self;
 }
@@ -43,45 +41,45 @@ kPNSNA PYNetDownloadDelegate * delegate;
 }
 
 ///<==
--(BOOL) resume{
+
+-(BOOL) cancel{
     @synchronized(self) {
-        self.session = [self createSession];
         if (!self.sessionTask) {
-            if (!self.session) {return false;}
-            NSURLSessionDownloadTask *downloadTask = nil;
-            if(self.url){
-                NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
-                NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData];
-                downloadTask = [self.session downloadTaskWithRequest:request];
-            }
-            if (!downloadTask) {return false;}
-
-            self.sessionTask = downloadTask;
-
+            self.delegate = nil;
+            return false;
         }
+        kAssign(self);
+        [(NSURLSessionDownloadTask*)self.sessionTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
+            kStrong(self);
+            if (self._blockCancel_) {
+                self._blockCancel_(resumeData, self);
+            }
+            [super cancel];
+            self.delegate.network= nil;
+            self.delegate = nil;
+        }];
     }
-    [self.sessionTask resume];
-    self.flagBeginDownload = false;
     return true;
 }
 
-//if (IOS8_OR_LATER) {
-//    configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:identifier];
-//}else{
-//    configuration = [NSURLSessionConfiguration backgroundSessionConfiguration:identifier];
-//}
--(nonnull NSURLSession*) createSession{
+-(nullable NSURLSessionTask *) createSessionTask{
+    if (!self.session) return nil;
+    NSURLSessionDownloadTask *downloadTask = nil;
+    if(self.url){
+        NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
+        NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
+        downloadTask = [self.session downloadTaskWithRequest:request];
+    }
+    return downloadTask;
+}
+
+-(nullable NSURLSession*) createSession{
     //这个sessionConfiguration 很重要， com.zyprosoft.xxx  这里，这个com.company.这个一定要和 bundle identifier 里面的一致，否则ApplicationDelegate 不会调用handleEventsForBackgroundURLSession代理方法
     _identifier = PYUUID(64);
-    NSURLSessionConfiguration *configuration = nil;
-    if(IOS8_OR_LATER){
-        configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:self.identifier];
-    }else{
-        configuration = [NSURLSessionConfiguration backgroundSessionConfiguration:self.identifier];
-    }
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:self.identifier];
     
-    configuration.URLCache =  [[NSURLCache alloc] initWithMemoryCapacity:20 * 1024*1024 diskCapacity:100 * 1024*1024 diskPath:PYNetworkCache];
-    configuration.requestCachePolicy = NSURLRequestUseProtocolCachePolicy;
+    configuration.URLCache = nil;//[[NSURLCache alloc] initWithMemoryCapacity:20 * 1024*1024 diskCapacity:100 * 1024*1024 diskPath:PYNetworkCache];
+    configuration.requestCachePolicy = NSURLRequestReloadIgnoringCacheData;
     self.delegate = [PYNetDownloadDelegate new];
     self.delegate.network = self;
     
@@ -102,68 +100,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
         }
     }
     [self.sessionTask resume];
-    self.flagBeginDownload = false;
     return true;
-}
-
--(BOOL) cancel{
-    @synchronized(self) {
-        self.flagBeginDownload = true;
-        if (!self.sessionTask) {
-            self.delegate = nil;
-            return false;
-        }
-       @unsafeify(self)
-        [(NSURLSessionDownloadTask*)self.sessionTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-            @strongify(self)
-            if (self._blockCancel_) {
-                self._blockCancel_(resumeData, self);
-            }
-            [super cancel];
-            self.delegate.network= nil;
-            self.delegate = nil;
-        }];
-    }
-    return true;
-}
-
-
-
--(void) setFlagBeginDownload:(BOOL)flagBeginDownload{
-    _flagBeginDownload = flagBeginDownload;
-    if (_flagBeginDownload) {
-        return;
-    }
-    @unsafeify(self);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        @strongify(self);
-        NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
-        // 耗时的操作
-        while (!self.flagBeginDownload) {
-            if ([PYReachabilityNotification instanceSingle].status == kNotReachable) {
-                break;
-            }
-            if ([NSDate timeIntervalSinceReferenceDate] > currentTime + self.outTime) {
-                break;
-            }
-            [NSThread sleepForTimeInterval:.5];
-        }
-        if (self.flagBeginDownload) {
-            return;
-        }
-        
-        @unsafeify(self);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            @strongify(self);
-            // 更新界面
-            if (!self.flagBeginDownload) {
-                if (!self.sessionTask) {
-                    return;
-                }
-                [self cancel];
-            }
-        });
-    });
 }
 
 @end
@@ -174,7 +111,6 @@ kPNSNA PYNetDownloadDelegate * delegate;
 #pragma mark - NSURLSessionDownloadDelegate==>
 //这个方法用来跟踪下载数据并且根据进度刷新ProgressView
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite{
-    ((PYNetDownload *)self.network).flagBeginDownload = true;
     if (((PYNetDownload *)self.network)._blockDownloadProgress_) {
         ((PYNetDownload *)self.network)._blockDownloadProgress_(((PYNetDownload *)self.network), totalBytesWritten, totalBytesExpectedToWrite);
     }
