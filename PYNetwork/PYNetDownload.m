@@ -13,7 +13,7 @@
 
 @interface PYNetDownload()
 kPNSNA PYNetDownloadDelegate * delegate;
-@property (nonatomic, copy, nullable) void (^_blockCancel_)(id _Nullable data, PYNetDownload * _Nonnull target) ;
+@property (nonatomic, copy, nullable) void (^_blockCancel_)(id _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) ;
 @property (nonatomic, copy, nullable) void (^ _blockDownloadProgress_) (PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes);
 @end
 
@@ -35,7 +35,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
     return self;
 }
 //下载请求恢复数取消
--(instancetype _Nonnull) setBlockCancel:(void (^_Nullable)(id _Nullable data, PYNetDownload * _Nonnull target)) blockCancel;{
+-(instancetype _Nonnull) setBlockCancel:(void (^_Nullable)(id _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target)) blockCancel;{
     self._blockCancel_ = blockCancel;
     return self;
 }
@@ -48,11 +48,9 @@ kPNSNA PYNetDownloadDelegate * delegate;
             self.delegate = nil;
             return false;
         }
-        kAssign(self);
         [(NSURLSessionDownloadTask*)self.sessionTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-            kStrong(self);
             if (self._blockCancel_) {
-                self._blockCancel_(resumeData, self);
+                self._blockCancel_(resumeData, nil, self);
             }
             [super cancel];
             self.delegate.network= nil;
@@ -120,7 +118,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location{
     NSString *relativePath = [location relativePath];
     if (((PYNetDownload *)self.network).blockComplete) {
-        ((PYNetDownload *)self.network).blockComplete(relativePath, ((PYNetDownload *)self.network));
+        ((PYNetDownload *)self.network).blockComplete(relativePath, nil, ((PYNetDownload *)self.network));
         [((PYNetDownload *)self.network) cancel];
     }
 }
@@ -133,7 +131,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error{
     if (error) {
         if (((PYNetDownload *)self.network).blockComplete) {
-            ((PYNetDownload *)self.network).blockComplete(error,((PYNetDownload *)self.network));
+            ((PYNetDownload *)self.network).blockComplete(error, nil, ((PYNetDownload *)self.network));
             [((PYNetDownload *)self.network) cancel];
         }
     }

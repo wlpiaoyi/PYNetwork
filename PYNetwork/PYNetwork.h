@@ -45,7 +45,7 @@ kPNSNA NSDictionary<NSString *, NSString *> * heads;
 
 kPNCNA void (^blockSendProgress) (PYNetwork * _Nonnull target, int64_t currentBytes, int64_t totalBytes);
 kPNCNA BOOL (^blockReceiveChallenge)(id _Nullable data, PYNetwork * _Nonnull target) ;
-kPNCNA void (^blockComplete)(id _Nullable data, PYNetwork * _Nonnull target);
+kPNCNA void (^blockComplete)(id _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target);
 
 kPNSNA NSString * certificationName;
 kPNSNA NSString * certificationPassword;

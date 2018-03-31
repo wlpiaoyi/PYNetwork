@@ -24,10 +24,10 @@
     [netd setBlockReceiveChallenge:^BOOL(id  _Nullable data, PYNetwork * _Nonnull target) {
         return true;
     }];
-    [netd setBlockComplete:^(id  _Nullable data, PYNetwork * _Nonnull target) {
+    [netd setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
         NSLog(@"");
     }];
-    [netd setBlockCancel:^(id  _Nullable data, PYNetDownload * _Nonnull target) {
+    [netd setBlockCancel:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) {
         NSLog(@"");
     }];
     [netd resume];
@@ -36,7 +36,7 @@
     network.method = PYNET_HTTP_POST;
     network.url = @"http://192.168.1.186:8081/upload";//@"http://staging.obt.slyi.cc/tmcs_uac/tmc/uploadImg.json";
     network.params = @{@"aa":@"bb"};
-    [network setBlockComplete:^(id _Nullable data, PYNetwork * _Nonnull target){
+    [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
         NSLog(@"%@", [((NSData *)data) description]);
     }];
     [network resumeWithData:UIImagePNGRepresentation([UIImage imageNamed:@"1.png"]) fileName:@"1.png" contentType:@"image/png"];

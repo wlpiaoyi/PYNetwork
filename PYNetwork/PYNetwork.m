@@ -96,6 +96,9 @@ kPNSNA PYNetworkDelegate * delegate;
 }
 
 -(BOOL) cancel{
+    return [self __cancel];
+}
+-(BOOL) __cancel{
     
     @synchronized(self) {
         
@@ -128,7 +131,8 @@ kPNSNA PYNetworkDelegate * delegate;
         [self.session invalidateAndCancel];
         _session = nil;
     }
-    [self cancel];
+    self.blockComplete = nil;
+    [self __cancel];
 }
 
 
@@ -144,18 +148,14 @@ kPNSNA PYNetworkDelegate * delegate;
 -(nullable NSURLSessionTask *) createSessionTask{
     NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
     NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
-    __unsafe_unretained typeof(self) uself = self;
+//    __unsafe_unretained typeof(self) uself = self;
     if(!self.session) return nil;
     return [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (uself.blockComplete) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    uself.blockComplete(error ? error : data,uself);
-                    [uself cancel];
-                });
-            });
+        if (self.blockComplete) {
+            self.blockComplete(error ? error : data, response, self);
+            [self cancel];
         }else{
-            [uself cancel];
+            [self cancel];
         }
     }];
 }

@@ -59,11 +59,9 @@ PYPNSNA NSString * filePath;
     if(![NSString isEnabled:self.url]) return nil;
     if([NSString isEnabled:self.filePath]){
         NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
-        @unsafeify(self);
         return [self.session uploadTaskWithRequest:request fromFile: [NSURL fileURLWithPath:self.filePath] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            @strongify(self);
             if (self.blockComplete) {
-                self.blockComplete(error ? error : data,self);
+                self.blockComplete(error ? error : data, nil, self);
                 [self cancel];
             }
         }];
@@ -77,11 +75,9 @@ PYPNSNA NSString * filePath;
         [mParams setObject:self.contentType forKey:@"contentType"];
         [mParams setObject:self.updateData forKey:uuid];
         NSData * mdata = [PYNetwork parseDictionaryToHttpBody:mParams contentType:mHeaders[@"Content-Type"]];
-        kAssign(self);
         return [self.session uploadTaskWithRequest:request fromData:mdata completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            kStrong(self);
             if (self.blockComplete) {
-                self.blockComplete(error ? error : data,self);
+                self.blockComplete(error ? error : data, nil, self);
             }
             [self cancel];
         }];

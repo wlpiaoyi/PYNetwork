@@ -22,10 +22,11 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 PYNetwork * nw = [PYNetwork new];
                 nw.url = @"https://www.baidu.com";
-                [nw setBlockComplete:^(id  _Nullable data, PYNetwork * _Nonnull target) {
-                    NSLog(@"%@",[data toString]);
+                [nw setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
+                    NSLog(@"%@",[data description]);
                 }];
                 [nw resume];
+                [nw interrupt];
 
             });
             [NSThread sleepForTimeInterval:2];
