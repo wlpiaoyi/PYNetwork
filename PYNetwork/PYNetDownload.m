@@ -7,6 +7,7 @@
 //
 
 #import "PYNetDownload.h"
+#import <objc/runtime.h>
 
 @interface PYNetDownloadDelegate:PYNetworkDelegate<NSURLSessionDownloadDelegate>
 @end
@@ -28,7 +29,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
 /**
  请求反馈
  */
-//==>
+//====================================>
 
 -(instancetype _Nonnull) setBlockDownloadProgress:(void (^_Nullable) (PYNetDownload * _Nonnull target,int64_t currentBytes, int64_t totalBytes)) blockProgress;{
     self._blockDownloadProgress_ = blockProgress;
@@ -39,17 +40,18 @@ kPNSNA PYNetDownloadDelegate * delegate;
     self._blockCancel_ = blockCancel;
     return self;
 }
-
-///<==
+///<====================================
 
 -(BOOL) cancel{
     @synchronized(self) {
         if (!self.sessionTask) {
+            self.delegate.network= nil;
             self.delegate = nil;
             return false;
         }
+        //必须等到cancel block回调时才能回收
         [(NSURLSessionDownloadTask*)self.sessionTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-            if (self._blockCancel_) {
+            if (self.state != PYNetworkStateCancel && self._blockCancel_) {
                 self._blockCancel_(resumeData, nil, self);
             }
             [super cancel];
@@ -60,11 +62,16 @@ kPNSNA PYNetDownloadDelegate * delegate;
     return true;
 }
 
+-(void) interrupt{
+    self._blockCancel_ = nil;
+    [super interrupt];
+}
+
 -(nullable NSURLSessionTask *) createSessionTask{
     if (!self.session) return nil;
     NSURLSessionDownloadTask *downloadTask = nil;
     if(self.url){
-        NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
+        NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params keySorts:self.keySorts contentType:self.heads[@"Content-Type"]];
         NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
         downloadTask = [self.session downloadTaskWithRequest:request];
     }

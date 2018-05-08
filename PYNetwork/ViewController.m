@@ -17,19 +17,30 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    PYNetwork * nw = [PYNetwork new];
+    nw.method = PYNET_HTTP_GET;
+    nw.url = @"http://www.51voa.com";
+    nw.params = @{@"v1":@"我的百分号[%]",@"v2":@(22),@"v3":@[@"vt1",[NSDate date], @{@"a":@"b"}]};
+    [nw setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
+        NSLog(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
+    }];
+    [nw resume];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         while(true){
             dispatch_async(dispatch_get_main_queue(), ^{
                 PYNetwork * nw = [PYNetwork new];
-                nw.url = @"https://www.baidu.com";
+                nw.method = PYNET_HTTP_GET;
+                nw.url = @"http://www.51voa.com";
+                nw.params = @{@"v1":@"a",@"v2":@(22)};
                 [nw setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
-                    NSLog(@"%@",[data description]);
+                    NSLog(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
                 }];
                 [nw resume];
-                [nw interrupt];
-
+                if(random() % 3){
+                    [nw cancel];
+                }
             });
-            [NSThread sleepForTimeInterval:2];
+            [NSThread sleepForTimeInterval:0.5];
         }
     });
 }

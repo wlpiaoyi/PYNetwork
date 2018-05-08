@@ -7,6 +7,7 @@
 //
 
 #import "PYNetUpload.h"
+#import <objc/runtime.h>
 @interface PYNetUpload()<NSURLSessionDelegate>
 
 PYPNSNA NSData * updateData;
@@ -59,7 +60,14 @@ PYPNSNA NSString * filePath;
     if(![NSString isEnabled:self.url]) return nil;
     if([NSString isEnabled:self.filePath]){
         NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
+        void * targetPointer = (__bridge void *)(self);
+        kAssign(self);
         return [self.session uploadTaskWithRequest:request fromFile: [NSURL fileURLWithPath:self.filePath] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            NSNumber * has = objc_getAssociatedObject([PYNetwork class], targetPointer);
+            if(!has || !has.boolValue){
+                return;
+            }
+            kStrong(self);
             if (self.blockComplete) {
                 self.blockComplete(error ? error : data, nil, self);
                 [self cancel];
@@ -74,8 +82,15 @@ PYPNSNA NSString * filePath;
         [mParams setObject:self.fileName forKey:@"fileName"];
         [mParams setObject:self.contentType forKey:@"contentType"];
         [mParams setObject:self.updateData forKey:uuid];
-        NSData * mdata = [PYNetwork parseDictionaryToHttpBody:mParams contentType:mHeaders[@"Content-Type"]];
+        NSData * mdata = [PYNetwork parseDictionaryToHttpBody:mParams keySorts:self.keySorts contentType:mHeaders[@"Content-Type"]];
+        void * targetPointer = (__bridge void *)(self);
+        kAssign(self);
         return [self.session uploadTaskWithRequest:request fromData:mdata completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            NSNumber * has = objc_getAssociatedObject([PYNetwork class], targetPointer);
+            if(!has || !has.boolValue){
+                return;
+            }
+            kStrong(self);
             if (self.blockComplete) {
                 self.blockComplete(error ? error : data, nil, self);
             }

@@ -8,18 +8,20 @@
 
 
 #import "PYNetwork.h"
+#import "pyutilea.h"
+#import <objc/runtime.h>
 
 static NSString *  PYNetworkCache  = @"org.personal.wlpiaoyi.network";
+static NSString *  PYNetWorkDatePattern = @"yyyy-MM-dd HH:mm:ss";
 static NSTimeInterval   PYNetworkOutTime = 30;
 static NSInteger PYNetworkActivityIndicatorIndex = 0;
 
 //==>传输方法
- NSString * _Nonnull PYNET_HTTP_GET = @"GET";
+NSString * _Nonnull PYNET_HTTP_GET = @"GET";
 NSString * _Nonnull PYNET_HTTP_POST = @"POST";
 NSString * _Nonnull PYNET_HTTP_PUT = @"PUT";
 NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
 ///<==
-
 
 @interface PYIdentityAndTrust:NSObject
 kPNA SecIdentityRef  secIdentity;
@@ -37,28 +39,29 @@ kPNSNA PYNetworkDelegate * delegate;
 @implementation PYNetwork
 -(nullable instancetype) init{
     if (self = [super init]) {
-        _session = [self createSession];
+        _state = PYNetworkStateUnkwon;
         self.outTime = PYNetworkOutTime;
         self.method = (NSString *)PYNET_HTTP_GET;
+        objc_setAssociatedObject([PYNetwork class], (__bridge const void * _Nonnull)(self), @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return self;
 }
 -(BOOL) resume{
     
     @synchronized (self) {
+        if(self.session == nil)
+            _session = [self createSession];
         self.delegate.network = self;
         if(self.state == PYNetworkStateResume) return false;
         
-        if(!self.sessionTask){//sessionTask 都为空则重新创建新的任务
-            self.sessionTask = [self createSessionTask];
-        }
-        
+        if(!self.sessionTask) self.sessionTask = [self createSessionTask];
         if(!self.sessionTask) return false;
         
         [self.sessionTask resume];
         _state = PYNetworkStateResume;
         
     }
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         @synchronized([PYNetwork class]){
             PYNetworkActivityIndicatorIndex++;
@@ -75,7 +78,7 @@ kPNSNA PYNetworkDelegate * delegate;
     
     @synchronized(self) {
         
-        if(self.state == PYNetworkStateSuspend) return false;
+        if(self.state != PYNetworkStateResume) return false;
         if (!self.sessionTask) return false;
         
         [self.sessionTask suspend];
@@ -96,30 +99,29 @@ kPNSNA PYNetworkDelegate * delegate;
 }
 
 -(BOOL) cancel{
+    if(self.state == PYNetworkStateCancel) return false;
     return [self __cancel];
 }
 -(BOOL) __cancel{
     
     @synchronized(self) {
-        
-        if(self.state == PYNetworkStateCancel) return false;
-        if (!self.sessionTask) return false;
-        
-        [self.sessionTask cancel];
-        self.sessionTask = nil;
-        
-        _state = PYNetworkStateCancel;
-        self.delegate.network = nil;
-    }
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        @synchronized([PYNetwork class]){
-            PYNetworkActivityIndicatorIndex--;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
+        @try{
+            if (!self.sessionTask) return false;
+            [self.sessionTask cancel];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                @synchronized([PYNetwork class]){
+                    PYNetworkActivityIndicatorIndex--;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
+                    });
+                }
             });
+        }@finally{
+            _state = PYNetworkStateCancel;
+            self.sessionTask = nil;
+            self.delegate.network = nil;
         }
-    });
+    }
     
     return true;
     
@@ -127,11 +129,11 @@ kPNSNA PYNetworkDelegate * delegate;
 
 
 -(void) interrupt{
+    _state = PYNetworkStateInterrupt;
     if(self.session){
         [self.session invalidateAndCancel];
         _session = nil;
     }
-    self.blockComplete = nil;
     [self __cancel];
 }
 
@@ -146,12 +148,32 @@ kPNSNA PYNetworkDelegate * delegate;
     return [NSURLSession sessionWithConfiguration:configuration delegate:self.delegate delegateQueue:[NSOperationQueue mainQueue]];
 }
 -(nullable NSURLSessionTask *) createSessionTask{
-    NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
-    NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
-//    __unsafe_unretained typeof(self) uself = self;
+    NSURLRequest * request = nil;
+    if([self.method isEqual:PYNET_HTTP_GET] || [self.method isEqual:PYNET_HTTP_DELETE]){
+        NSString * url = nil;
+        NSString * urlParams = [PYNetwork parseDictinaryToFrom:self.params keySorts:self.keySorts isAddPercentEncoding:YES];
+        if([self.url containsString:@"?"]){
+            url = kFORMAT(@"%@&%@",self.url, urlParams);
+        }else{
+            url = kFORMAT(@"%@?%@",self.url, urlParams);
+        }
+        request = [PYNetwork createRequestWithUrlString:url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
+        
+    }else{
+        NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params keySorts:self.keySorts contentType:self.heads[@"Content-Type"]];
+        request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
+    }
+    
     if(!self.session) return nil;
+    void * targetPointer = (__bridge void *)(self);
+    kAssign(self);
     return [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (self.blockComplete) {
+        NSNumber * has = objc_getAssociatedObject([PYNetwork class], targetPointer);
+        if(!has || !has.boolValue){
+            return;
+        }
+        kStrong(self);
+        if (self.state != PYNetworkStateCancel && self.state != PYNetworkStateInterrupt &&self.blockComplete) {
             self.blockComplete(error ? error : data, response, self);
             [self cancel];
         }else{
@@ -161,6 +183,7 @@ kPNSNA PYNetworkDelegate * delegate;
 }
 -(void) dealloc{
     [self interrupt];
+    objc_setAssociatedObject([PYNetwork class], (__bridge const void * _Nonnull)(self), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 +(nonnull NSURLRequest *) createRequestWithUrlString:(nonnull NSString*) urlString
@@ -180,7 +203,41 @@ kPNSNA PYNetworkDelegate * delegate;
     request.HTTPBody = params;
     return  request;
 }
-+(nonnull NSData *) parseDictionaryToHttpBody:(NSDictionary<NSString*, id> *) params contentType:(NSString *) contentType{
++(nonnull NSString *) parseDictinaryToFrom:(NSDictionary<NSString*, id> *) params keySorts:(nullable NSArray<NSString *> *) keySorts isAddPercentEncoding:(BOOL) isAddPercentEncoding{
+    NSMutableString * formString = [NSMutableString new];
+    if(!keySorts.count) keySorts = params.allKeys;
+    for (NSString * key in keySorts) {
+        [self parseForFormString:formString key:key value:params[key] isAddPercentEncoding:isAddPercentEncoding];
+    }
+    return formString.length > 1 ? [formString substringToIndex:formString.length - 1] : formString;
+}
+//form表单传参全类型支持
++(void)parseForFormString:(NSMutableString *) formString key:(NSString *) key value:(id) value isAddPercentEncoding:(BOOL) isAddPercentEncoding{
+    if([value isKindOfClass:[NSString class]]){
+        if(isAddPercentEncoding){
+            value = [value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPasswordAllowedCharacterSet]];
+            key = [key stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPasswordAllowedCharacterSet]];
+        }
+        [formString appendString:key];
+        [formString appendString:@"="];
+        [formString appendString:value];
+        [formString appendString:@"&"];
+    }else if([value isKindOfClass:[NSArray class]]){
+        for (id v in value) {
+            [self parseForFormString:formString key:key value:v isAddPercentEncoding:isAddPercentEncoding];
+        }
+    }else if([value isKindOfClass:[NSData class]]){
+        [self parseForFormString:formString key:key value:[((NSData*)value) toString] isAddPercentEncoding:isAddPercentEncoding];
+    }else if([value isKindOfClass:[NSNumber class]]){
+        [self parseForFormString:formString key:key value:[((NSNumber*)value) stringValue] isAddPercentEncoding:isAddPercentEncoding];
+    }else if([value isKindOfClass:[NSDate class]]){
+        [self parseForFormString:formString key:key value:[((NSDate*)value) dateFormateDate:PYNetWorkDatePattern] isAddPercentEncoding:isAddPercentEncoding];
+    }else{
+        [self parseForFormString:formString key:key value:[(NSDictionary *)[value objectToDictionary] toData] isAddPercentEncoding:isAddPercentEncoding];
+    }
+    
+}
++(nonnull NSData *) parseDictionaryToHttpBody:(NSDictionary<NSString*, id> *) params keySorts:(nullable NSArray<NSString *> *) keySorts contentType:(NSString *) contentType{
     
     if(params == nil) return nil;
     
@@ -191,18 +248,7 @@ kPNSNA PYNetworkDelegate * delegate;
     if([@"application/json" isEqual:contentType]){
         return [params toData];
     }else if([@"application/x-www-form-urlencoded" isEqual:contentType]){
-        NSMutableString * pString = [NSMutableString new];
-        NSUInteger count = params.allKeys.count;
-        for (NSString * key in params.allKeys) {
-            count--;
-            [pString appendString:key];
-            [pString appendString:@"="];
-            [pString appendString:params[key]];
-            if(count > 0){
-                [pString appendString:@"&"];
-            }
-        }
-        return [pString toData];
+        return [[self parseDictinaryToFrom:params keySorts:keySorts isAddPercentEncoding:NO] toData];
     }else if(contentType.length > 29 && [[contentType substringToIndex:29] isEqual:@"multipart/form-data;boundary="]){
         NSMutableString * mString = [NSMutableString new];
         NSString * uuid = [contentType substringFromIndex:29];
