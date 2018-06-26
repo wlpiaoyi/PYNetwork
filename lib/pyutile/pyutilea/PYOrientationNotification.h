@@ -19,7 +19,7 @@
 // Device oriented horizontally, home button on the left
 -(void) deviceOrientationLandscapeRight;
 // Device oriented horizontally, home button not support
--(void) deviceOrientationNotSupport:(UIDeviceOrientation) deviceOrientation;
+-(void) deviceOrientation:(UIDeviceOrientation) deviceOrientation isSupport:(BOOL)isSupport;
 @end
 @interface PYOrientationNotification : NSObject
 //当前旋转方向
@@ -31,8 +31,9 @@
 +(nonnull instancetype) instanceSingle;
 /**
  旋转当前装置
+ 只有当iOS版本大于10才有Timer
  */
--(nullable NSTimer *) attemptRotationToDeviceOrientation:(UIDeviceOrientation) deviceOrientation completion:(void (^ _Nullable)(NSTimer * _Nonnull timer)) completion;
+-(nullable NSTimer *) attemptRotationToDeviceOrientation:(UIDeviceOrientation) deviceOrientation completion:(void (^ _Nullable)(NSTimer * _Nullable timer)) completion;
 -(void) addListener:(nonnull id<PYOrientationNotification>) listener;
 -(void) removeListenser:(nonnull id<PYOrientationNotification>) listener;
 /**

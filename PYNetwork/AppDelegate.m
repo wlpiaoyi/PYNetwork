@@ -19,30 +19,32 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    PYNetDownload * netd = [PYNetDownload new];
-    netd.url = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1511767451861&di=d4fb1a8ba225446d1a23d36a0e154bdb&imgtype=0&src=http%3A%2F%2Fimg2.niutuku.com%2Fdesk%2F1208%2F1542%2Fntk-1542-29992.jpg";
-    [netd setBlockDownloadProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {
-        NSLog(@"");
-    }];
-    [netd setBlockReceiveChallenge:^BOOL(id  _Nullable data, PYNetwork * _Nonnull target) {
-        return true;
-    }];
-    [netd setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
-        NSLog(@"");
-    }];
-    [netd setBlockCancel:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) {
-        NSLog(@"");
-    }];
-    [netd resume];
-    [netd cancel];
-//    PYNetUpload * network = [PYNetUpload new];
-//    network.method = PYNET_HTTP_POST;
-//    network.url = @"http://192.168.1.186:8081/upload";//@"http://staging.obt.slyi.cc/tmcs_uac/tmc/uploadImg.json";
-//    network.params = @{@"aa":@"bb"};
-//    [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
-//        NSLog(@"%@", [((NSData *)data) description]);
+//    PYNetDownload * netd = [PYNetDownload new];
+//    netd.url = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1511767451861&di=d4fb1a8ba225446d1a23d36a0e154bdb&imgtype=0&src=http%3A%2F%2Fimg2.niutuku.com%2Fdesk%2F1208%2F1542%2Fntk-1542-29992.jpg";
+//    [netd setBlockDownloadProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {
+//        NSLog(@"");
 //    }];
-//    [network resumeWithData:UIImagePNGRepresentation([UIImage imageNamed:@"1.png"]) fileName:@"1.png" contentType:@"image/png"];
+//    [netd setBlockReceiveChallenge:^BOOL(id  _Nullable data, PYNetwork * _Nonnull target) {
+//        return true;
+//    }];
+//    [netd setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
+//        NSLog(@"");
+//    }];
+//    [netd setBlockCancel:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) {
+//        NSLog(@"");
+//    }];
+//    [netd resume];
+//    [netd cancel];
+    
+    static PYNetUpload * network;
+    network = [PYNetUpload new];
+    network.method = PYNET_HTTP_POST;
+    network.url = @"http://192.168.1.186:8081/upload";//@"http://staging.obt.slyi.cc/tmcs_uac/tmc/uploadImg.json";
+    network.params = @{@"aa":@"bb"};
+    [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
+        NSLog(@"%@", [((NSData *)data) description]);
+    }];
+    [network resumeWithData:UIImagePNGRepresentation([UIImage imageNamed:@"1.png"]) fileName:@"1.png" contentType:@"image/png"];
 //    [network resumeWithPath:[NSString stringWithFormat:@"%@/1.png",bundleDir] fileName:@"1.png" contentType:@"image/png"];
 //    [network resumeWithData:[NSData new]];
     return YES;

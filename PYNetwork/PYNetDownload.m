@@ -71,7 +71,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
     if (!self.session) return nil;
     NSURLSessionDownloadTask *downloadTask = nil;
     if(self.url){
-        NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params keySorts:self.keySorts contentType:self.heads[@"Content-Type"]];
+        NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"]  keySorts:self.keySorts];
         NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
         downloadTask = [self.session downloadTaskWithRequest:request];
     }
@@ -82,8 +82,6 @@ kPNSNA PYNetDownloadDelegate * delegate;
     //这个sessionConfiguration 很重要， com.zyprosoft.xxx  这里，这个com.company.这个一定要和 bundle identifier 里面的一致，否则ApplicationDelegate 不会调用handleEventsForBackgroundURLSession代理方法
     _identifier = PYUUID(64);
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:self.identifier];
-    
-    configuration.URLCache = nil;//[[NSURLCache alloc] initWithMemoryCapacity:20 * 1024*1024 diskCapacity:100 * 1024*1024 diskPath:PYNetworkCache];
     configuration.requestCachePolicy = NSURLRequestReloadIgnoringCacheData;
     self.delegate = [PYNetDownloadDelegate new];
     self.delegate.network = self;
