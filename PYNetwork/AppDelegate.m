@@ -36,15 +36,15 @@
 //    [netd resume];
 //    [netd cancel];
     
-    static PYNetUpload * network;
-    network = [PYNetUpload new];
-    network.method = PYNET_HTTP_POST;
-    network.url = @"http://192.168.1.186:8081/upload";//@"http://staging.obt.slyi.cc/tmcs_uac/tmc/uploadImg.json";
-    network.params = @{@"aa":@"bb"};
-    [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
-        NSLog(@"%@", [((NSData *)data) description]);
-    }];
-    [network resumeWithData:UIImagePNGRepresentation([UIImage imageNamed:@"1.png"]) fileName:@"1.png" contentType:@"image/png"];
+//    static PYNetUpload * network;
+//    network = [PYNetUpload new];
+//    network.method = PYNET_HTTP_POST;
+//    network.url = @"http://192.168.1.186:8081/upload";//@"http://staging.obt.slyi.cc/tmcs_uac/tmc/uploadImg.json";
+//    network.params = @{@"aa":@"bb"};
+//    [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
+//        NSLog(@"%@", [((NSData *)data) description]);
+//    }];
+//    [network resumeWithData:UIImagePNGRepresentation([UIImage imageNamed:@"1.png"]) fileName:@"1.png" contentType:@"image/png"];
 //    [network resumeWithPath:[NSString stringWithFormat:@"%@/1.png",bundleDir] fileName:@"1.png" contentType:@"image/png"];
 //    [network resumeWithData:[NSData new]];
     return YES;

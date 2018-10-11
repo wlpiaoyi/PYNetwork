@@ -169,7 +169,7 @@ kPNSNA PYNetworkDelegate * delegate;
         request = [PYNetwork createRequestWithUrlString:url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
         
     }else{
-        NSData * pData = [PYNetwork parseDictionaryToHttpBody:self.params contentType:self.heads[@"Content-Type"] keySorts:self.keySorts];
+        NSData * pData = [PYNetwork parseParamsToHttpBody:self.params contentType:self.heads[@"Content-Type"] keySorts:self.keySorts];
         request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
     }
     
@@ -193,11 +193,18 @@ kPNSNA PYNetworkDelegate * delegate;
     objc_setAssociatedObject([PYNetwork class], (__bridge const void * _Nonnull)(self), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+/**
+ 创建网络请求
+ @param urlString 请求地址
+ @param httpMethod 请求类型
+ @param heads 请求头信息
+ @param outTime 超时时间
+ */
 +(nonnull NSURLRequest *) createRequestWithUrlString:(nonnull NSString*) urlString
-                                          httpMethod:(nullable NSString*) httpMethod
-                                               heads:(nullable NSDictionary<NSString *, NSString *> *) heads
-                                              params:(nullable NSData *) params
-                                             outTime:(CGFloat) outTime{
+                                                httpMethod:(nullable NSString*) httpMethod
+                                                heads:(nullable NSDictionary<NSString *, NSString *> *) heads
+                                                params:(nullable NSData *) params
+                                                outTime:(CGFloat) outTime;{
     NSURL *url = [NSURL URLWithString:urlString];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:outTime];
@@ -210,23 +217,44 @@ kPNSNA PYNetworkDelegate * delegate;
     request.HTTPBody = params;
     return  request;
 }
-
 /**
  将键值对转换成对应的数据结构
+ @param params 支持 NSString , NSDictionary, NSData
+ @param contentType 支持
+ application/x-www-form-urlencoded
+ application/json
+ application/xml
+ @param keySorts 参数排序,仅当c参数类型是form表单时有用
  */
-+(nonnull NSData *) parseDictionaryToHttpBody:(NSDictionary<NSString*, id> *) params contentType:(NSString *) contentType keySorts:(nullable NSArray<NSString *> *) keySorts{
++(nonnull NSData *) parseParamsToHttpBody:(nullable id) params
+                                            contentType:(NSString *) contentType
+                                            keySorts:(nullable NSArray<NSString *> *) keySorts;{
     
     if(params == nil) return nil;
     
-    if(!contentType || ![contentType isKindOfClass:[NSString class]] || contentType.length == 0) contentType = @"application/x-www-form-urlencoded";
+    if([params isKindOfClass:[NSData class]])
+        return params;
     
-    if([contentType containsString:@"application/json"]) return [self parseParamsToData:params];
+    if(!contentType || ![contentType isKindOfClass:[NSString class]] || contentType.length == 0)
+        contentType = @"application/x-www-form-urlencoded";
     
-    else if([contentType containsString:@"application/x-www-form-urlencoded"]) return [[self parseParamsToFrom:params keySorts:keySorts isAddPercentEncoding:NO] toData];
+    if([contentType containsString:@"application/x-www-form-urlencoded"] && [params isKindOfClass:[NSDictionary class]])
+        return [[self parseParamsToFrom:params keySorts:keySorts isAddPercentEncoding:NO] toData];
     
-    else if([contentType containsString:@"application/xml"]) return [self parseParamsToXml:params];
+    else if([contentType containsString:@"application/x-www-form-urlencoded"] && [params isKindOfClass:[NSString class]])
+        return [((NSString *) params) toData];
 
-    else if(contentType.length > 29 && [[contentType substringToIndex:29] isEqual:@"multipart/form-data;boundary="]) return [self parseParamsToMultipart:params contentType:contentType];
+    else if([contentType containsString:@"application/json"])
+        return [self parseParamsToData:params];
+    
+    else if([contentType containsString:@"application/xml"])
+        return [self parseParamsToXml:params];
+
+    else if(contentType.length > 29 && [[contentType substringToIndex:29] isEqual:@"multipart/form-data;boundary="])
+        return [self parseParamsToMultipart:params contentType:contentType];
+    
+    else
+        NSAssert(false, @"PYNetwork.parseParamsToHttpBody params can't parset to httpbody that dataType is [%@] and contentType is [%@]", NSStringFromClass([params class]), contentType);
     
     return nil;
 }
