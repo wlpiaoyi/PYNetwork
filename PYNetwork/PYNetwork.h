@@ -18,9 +18,12 @@ typedef enum _PYNetworkState {
 } PYNetworkState;
 
 
-static NSTimeInterval   PYNetworkOutTime;
+extern NSTimeInterval PYNET_OUTTIME;
 
-extern NSString * _Nonnull  PYNetWorkDatePattern;
+extern NSString * _Nonnull  PYNET_DATE_PATTERN;
+
+extern CFStringRef PYNET_PERCENT_PARAM;
+extern CFStringRef PYNET_PERCENT_FIELD;
 
 //==>传输方法
 extern NSString * _Nonnull PYNET_HTTP_GET;
@@ -111,7 +114,7 @@ kPNSNA NSString * certificationPassword;
  application/x-www-form-urlencoded
  application/json
  application/xml
- @param keySorts 参数排序,仅当c参数类型是form表单时有用
+ @param keySorts 参数排序,仅当参数类型是form表单时有用
  */
 +(nonnull NSData *) parseParamsToHttpBody:(nullable id) params
                                             contentType:(NSString *) contentType

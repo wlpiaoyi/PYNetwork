@@ -12,10 +12,14 @@
 #import <objc/runtime.h>
 
 
-static NSTimeInterval PYNetworkOutTime = 30;
 static NSInteger PYNetworkActivityIndicatorIndex = 0;
 
-NSString *  PYNetWorkDatePattern = @"yyyy-MM-dd HH:mm:ss";
+NSTimeInterval PYNET_OUTTIME = 30;
+
+NSString *  PYNET_DATE_PATTERN = @"yyyy-MM-dd HH:mm:ss";
+
+CFStringRef PYNET_PERCENT_PARAM = CFSTR(":/?#[]@!$’()*+,;");
+CFStringRef PYNET_PERCENT_FIELD = CFSTR(":/?#[]@!$&’()*+,;=");
 
 //==>传输方法
 NSString * _Nonnull PYNET_HTTP_GET = @"GET";
@@ -48,7 +52,7 @@ kPNSNA PYNetworkDelegate * delegate;
     if (self = [super init]) {
         synrequest = @"";
         _state = PYNetworkStateUnkwon;
-        self.outTime = PYNetworkOutTime;
+        self.outTime = PYNET_OUTTIME;
         self.method = (NSString *)PYNET_HTTP_GET;
         objc_setAssociatedObject([PYNetwork class], (__bridge const void * _Nonnull)(self), @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
@@ -217,6 +221,7 @@ kPNSNA PYNetworkDelegate * delegate;
     request.HTTPBody = params;
     return  request;
 }
+
 /**
  将键值对转换成对应的数据结构
  @param params 支持 NSString , NSDictionary, NSData
@@ -228,7 +233,7 @@ kPNSNA PYNetworkDelegate * delegate;
  */
 +(nonnull NSData *) parseParamsToHttpBody:(nullable id) params
                                             contentType:(NSString *) contentType
-                                            keySorts:(nullable NSArray<NSString *> *) keySorts;{
+                                            keySorts:(nullable NSArray<NSString *> *) keySorts{
     
     if(params == nil) return nil;
     
@@ -236,10 +241,10 @@ kPNSNA PYNetworkDelegate * delegate;
         return params;
     
     if(!contentType || ![contentType isKindOfClass:[NSString class]] || contentType.length == 0)
-        contentType = @"application/x-www-form-urlencoded";
+        contentType = @"application/x-www-form-urlencoded;charset=UTF-8";
     
     if([contentType containsString:@"application/x-www-form-urlencoded"] && [params isKindOfClass:[NSDictionary class]])
-        return [[self parseParamsToFrom:params keySorts:keySorts isAddPercentEncoding:NO] toData];
+        return [[self parseParamsToFrom:params keySorts:keySorts isAddPercentEncoding:YES] toData];
     
     else if([contentType containsString:@"application/x-www-form-urlencoded"] && [params isKindOfClass:[NSString class]])
         return [((NSString *) params) toData];
@@ -353,14 +358,14 @@ kPNSNA PYNetworkDelegate * delegate;
     
     if([params isKindOfClass:[NSData class]] || [params isMemberOfClass:[NSData class]]){
         if(isAddPercentEncoding){
-            return [[params toString] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPasswordAllowedCharacterSet]];
+            return [PYNetwork __PARAM_TO_BSTR:[params toString]];
         }
         return [params toString];
     }
     
     if([params isKindOfClass:[NSString class]] || [params isMemberOfClass:[NSString class]]){
         if(isAddPercentEncoding){
-            return [params stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPasswordAllowedCharacterSet]];
+            return [PYNetwork __PARAM_TO_BSTR:params];
         }
         return params;
     }
@@ -394,8 +399,8 @@ kPNSNA PYNetworkDelegate * delegate;
     
     if([value isKindOfClass:[NSString class]]){
         if(isAddPercentEncoding){
-            value = [value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPasswordAllowedCharacterSet]];
-            key = [key stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPasswordAllowedCharacterSet]];
+            value = [PYNetwork __FIELD_TO_BSTR:value];
+            key = [PYNetwork __FIELD_TO_BSTR:key];
         }
         
         [formString appendString:key];
@@ -411,11 +416,20 @@ kPNSNA PYNetworkDelegate * delegate;
     }else if([value isKindOfClass:[NSNumber class]]){
         [self parseForFormString:formString key:key value:[((NSNumber*)value) stringValue] isAddPercentEncoding:isAddPercentEncoding];
     }else if([value isKindOfClass:[NSDate class]]){
-        [self parseForFormString:formString key:key value:[((NSDate*)value) dateFormateDate:PYNetWorkDatePattern] isAddPercentEncoding:isAddPercentEncoding];
+        [self parseForFormString:formString key:key value:[((NSDate*)value) dateFormateDate:PYNET_DATE_PATTERN] isAddPercentEncoding:isAddPercentEncoding];
     }else{
         [self parseForFormString:formString key:key value:[(NSDictionary *)[value objectToDictionary] toData] isAddPercentEncoding:isAddPercentEncoding];
     }
     
+}
+
++(nonnull NSString *) __FIELD_TO_BSTR:(nonnull NSString*) str{
+    NSString *bStr = (__bridge NSString*)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)str, NULL, PYNET_PERCENT_FIELD, kCFStringEncodingUTF8);
+    return bStr;
+}
++(nonnull NSString *) __PARAM_TO_BSTR:(nonnull NSString*) str{
+    NSString *bStr = (__bridge NSString*)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)str, NULL, PYNET_PERCENT_PARAM, kCFStringEncodingUTF8);
+    return bStr;
 }
 @end
 

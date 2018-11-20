@@ -34,10 +34,13 @@
     nw = [PYNetwork new];
     nw.method = PYNET_HTTP_POST;
     nw.url = @"http://www.baidu.com";
-//    nw.heads = @{@"Content-type": @"application/xml"};
+    nw.heads = @{@"Content-Type":@"application/x-www-form-urlencoded;charset=UTF-8"};
 //    nw.params = xml;
-    nw.params = @{@"v1":@"我的百分号[%]",@"v2":@(22),@"v3":@[@"vt1",[NSDate date], @{@"a":@"b"}]};
-    nw.keySorts = @[@"v3",@"v2"];
+//    nw.params = @{@"name":@"223"};
+    NSString * str = @"EZKL+982+8+1116/69/51 55:24:02";
+//    NSString *bStr = (__bridge NSString*)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)str, NULL, CFSTR(":/?#[]@!$&’()*+,;="), kCFStringEncodingUTF8);
+    nw.params = @{@"name":str};
+//    nw.params = @{@"name":@"黄海平-13726867391"};
     [nw setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
         NSLog(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
     }];

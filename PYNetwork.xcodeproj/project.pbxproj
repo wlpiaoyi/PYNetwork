@@ -86,8 +86,6 @@
 		15D95B311FD7CEC8001BEF94 /* PYKeyboardNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYKeyboardNotification.h; sourceTree = "<group>"; };
 		15D95B321FD7CEC8001BEF94 /* PYMotionNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYMotionNotification.h; sourceTree = "<group>"; };
 		15D95B331FD7CEC8001BEF94 /* PYOrientationNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYOrientationNotification.h; sourceTree = "<group>"; };
-		15D95B341FD7CEC8001BEF94 /* PYReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYReachability.h; sourceTree = "<group>"; };
-		15D95B351FD7CEC8001BEF94 /* PYReachabilityNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYReachabilityNotification.h; sourceTree = "<group>"; };
 		15D95B361FD7CEC8001BEF94 /* PYUncaughtExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYUncaughtExceptionHandler.h; sourceTree = "<group>"; };
 		15D95B371FD7CEC8001BEF94 /* PYUtile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYUtile.h; sourceTree = "<group>"; };
 		15D95B381FD7CEC8001BEF94 /* pyutilea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pyutilea.h; sourceTree = "<group>"; };
@@ -219,8 +217,6 @@
 				15D95B311FD7CEC8001BEF94 /* PYKeyboardNotification.h */,
 				15D95B321FD7CEC8001BEF94 /* PYMotionNotification.h */,
 				15D95B331FD7CEC8001BEF94 /* PYOrientationNotification.h */,
-				15D95B341FD7CEC8001BEF94 /* PYReachability.h */,
-				15D95B351FD7CEC8001BEF94 /* PYReachabilityNotification.h */,
 				15D95B361FD7CEC8001BEF94 /* PYUncaughtExceptionHandler.h */,
 				15D95B371FD7CEC8001BEF94 /* PYUtile.h */,
 				15D95B381FD7CEC8001BEF94 /* pyutilea.h */,
