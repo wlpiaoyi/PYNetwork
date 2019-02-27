@@ -165,7 +165,9 @@ kPNSNA PYNetworkDelegate * delegate;
     if([self.method isEqual:PYNET_HTTP_GET] || [self.method isEqual:PYNET_HTTP_DELETE]){
         NSString * url = nil;
         NSString * urlParams = [PYNetwork parseParamsToFrom:self.params keySorts:self.keySorts isAddPercentEncoding:YES];
-        if([self.url containsString:@"?"]){
+        if(urlParams == nil || urlParams.length == 0){
+            url = self.url;
+        }else if([self.url containsString:@"?"]){
             url = kFORMAT(@"%@&%@",self.url, urlParams);
         }else{
             url = kFORMAT(@"%@?%@",self.url, urlParams);
