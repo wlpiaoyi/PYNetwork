@@ -281,6 +281,10 @@ kPNSNA PYNetworkDelegate * delegate;
         return [((NSDictionary *) params) toData];
     }
     
+    if([params isKindOfClass:[NSArray class]] || [params isMemberOfClass:[NSArray class]]){
+        return [((NSArray *) params) toData];
+    }
+    
     if([params isKindOfClass:[PYXmlElement class]] || [params isMemberOfClass:[PYXmlElement class]]){
         return [[((PYXmlElement *) params) stringValue] toData];
     }
