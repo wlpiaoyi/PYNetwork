@@ -22,8 +22,8 @@ extern NSTimeInterval PYNET_OUTTIME;
 
 extern NSString * _Nonnull  PYNET_DATE_PATTERN;
 
-extern CFStringRef PYNET_PERCENT_PARAM;
-extern CFStringRef PYNET_PERCENT_FIELD;
+extern CFStringRef _Nonnull PYNET_PERCENT_PARAM;
+extern CFStringRef _Nonnull PYNET_PERCENT_FIELD;
 
 //==>传输方法
 extern NSString * _Nonnull PYNET_HTTP_GET;
@@ -34,7 +34,7 @@ extern NSString * _Nonnull PYNET_HTTP_DELETE;
 
 @class PYNetwork;
 @interface PYNetworkDelegate:NSObject<NSURLSessionDelegate>
-kPNA PYNetwork * network;
+kPNA PYNetwork * _Nullable network;
 @end
 
 @interface PYNetwork : NSObject
