@@ -7,6 +7,7 @@
 //
 
 #import "PYNetDownload.h"
+#import "PYNetwork+__DataParse.h"
 #import <objc/runtime.h>
 
 @interface PYNetDownloadDelegate:PYNetworkDelegate<NSURLSessionDownloadDelegate>
@@ -71,7 +72,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
     if (!self.session) return nil;
     NSURLSessionDownloadTask *downloadTask = nil;
     if(self.url){
-        NSData * pData = [PYNetwork parseParamsToHttpBody:self.params contentType:self.heads[@"Content-Type"]  keySorts:self.keySorts];
+        NSData * pData = [PYNetwork parseParamsToHttpBody:self.params contentType:self.heads[@"Content-Type"]];
         NSURLRequest * request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
         downloadTask = [self.session downloadTaskWithRequest:request];
     }

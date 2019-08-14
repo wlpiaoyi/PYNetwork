@@ -10,6 +10,7 @@
 #import "PYNetUpload.h"
 #import "PYNetDownload.h"
 #import "NSData+Expand.h"
+#import "PYNetworkReachabilityManager.h"
 
 @interface AppDelegate ()
 
@@ -19,6 +20,10 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [[PYNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(PYNetworkReachabilityStatus status) {
+        NSLog(@"%ld", status);
+    }];
+    [[PYNetworkReachabilityManager sharedManager] startMonitoring];
 //    PYNetDownload * netd = [PYNetDownload new];
 //    netd.url = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1511767451861&di=d4fb1a8ba225446d1a23d36a0e154bdb&imgtype=0&src=http%3A%2F%2Fimg2.niutuku.com%2Fdesk%2F1208%2F1542%2Fntk-1542-29992.jpg";
 //    [netd setBlockDownloadProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {

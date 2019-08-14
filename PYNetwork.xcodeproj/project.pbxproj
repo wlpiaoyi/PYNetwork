@@ -28,6 +28,13 @@
 		15CC08021EA7564D0006B505 /* PYNetNormal.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CC07CC1EA71BB90006B505 /* PYNetNormal.m */; };
 		15CC08031EA756590006B505 /* PYNetUpload.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 150BF68C1EA06CDE00E320BB /* PYNetUpload.h */; };
 		15CC08041EA756590006B505 /* PYNetNormal.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15CC07CD1EA71BB90006B505 /* PYNetNormal.h */; };
+		15DC8F392303AF6100682D21 /* PYNetworkReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 15DC8F382303AF6100682D21 /* PYNetworkReachabilityManager.m */; };
+		15DC8F3E2303B67C00682D21 /* PYNetwork+__ContenType.m in Sources */ = {isa = PBXBuildFile; fileRef = 15DC8F3D2303B67C00682D21 /* PYNetwork+__ContenType.m */; };
+		15DC8F412303CE8700682D21 /* PYNetwork+__DataParse.m in Sources */ = {isa = PBXBuildFile; fileRef = 15DC8F402303CE8700682D21 /* PYNetwork+__DataParse.m */; };
+		15DC8F432303D6E900682D21 /* PYNetwork+__ContenType.m in Sources */ = {isa = PBXBuildFile; fileRef = 15DC8F3D2303B67C00682D21 /* PYNetwork+__ContenType.m */; };
+		15DC8F442303D6E900682D21 /* PYNetwork+__DataParse.m in Sources */ = {isa = PBXBuildFile; fileRef = 15DC8F402303CE8700682D21 /* PYNetwork+__DataParse.m */; };
+		15DC8F452303D6E900682D21 /* PYNetworkReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 15DC8F382303AF6100682D21 /* PYNetworkReachabilityManager.m */; };
+		15DC8F462303D6F600682D21 /* PYNetworkReachabilityManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15DC8F372303AF6100682D21 /* PYNetworkReachabilityManager.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +44,7 @@
 			dstPath = "$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				15DC8F462303D6F600682D21 /* PYNetworkReachabilityManager.h in CopyFiles */,
 				15CC08031EA756590006B505 /* PYNetUpload.h in CopyFiles */,
 				15CC08041EA756590006B505 /* PYNetNormal.h in CopyFiles */,
 				150BF6921EA0A17F00E320BB /* PYNetwork.h in CopyFiles */,
@@ -104,6 +112,12 @@
 		15CC07CC1EA71BB90006B505 /* PYNetNormal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PYNetNormal.m; sourceTree = "<group>"; };
 		15CC07CD1EA71BB90006B505 /* PYNetNormal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYNetNormal.h; sourceTree = "<group>"; };
 		15CECCAF228BE0D8008173E0 /* NSObject+Hook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+Hook.h"; path = "../../../PYUtile/PYUtile/Source/Public/Hook/NSObject+Hook.h"; sourceTree = "<group>"; };
+		15DC8F372303AF6100682D21 /* PYNetworkReachabilityManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PYNetworkReachabilityManager.h; sourceTree = "<group>"; };
+		15DC8F382303AF6100682D21 /* PYNetworkReachabilityManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PYNetworkReachabilityManager.m; sourceTree = "<group>"; };
+		15DC8F3C2303B67C00682D21 /* PYNetwork+__ContenType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PYNetwork+__ContenType.h"; sourceTree = "<group>"; };
+		15DC8F3D2303B67C00682D21 /* PYNetwork+__ContenType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "PYNetwork+__ContenType.m"; sourceTree = "<group>"; };
+		15DC8F3F2303CE8700682D21 /* PYNetwork+__DataParse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PYNetwork+__DataParse.h"; sourceTree = "<group>"; };
+		15DC8F402303CE8700682D21 /* PYNetwork+__DataParse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "PYNetwork+__DataParse.m"; sourceTree = "<group>"; };
 		15FA8005227EC5AF007C484E /* PYUtile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PYUtile.h; path = ../../../PYUtile/PYUtile/Source/Public/Utile/PYUtile.h; sourceTree = "<group>"; };
 		15FA8006227EC5B0007C484E /* PYUtileMacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PYUtileMacro.h; path = ../../../PYUtile/PYUtile/Source/Public/Utile/PYUtileMacro.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -218,14 +232,7 @@
 		15A21D431E9B6ABB0078D3FD /* PYNetwork */ = {
 			isa = PBXGroup;
 			children = (
-				150BF68F1EA06DA300E320BB /* PYNetwork.h */,
-				150BF6901EA06DA300E320BB /* PYNetwork.m */,
-				150F06E11E9CB46800D3B4B4 /* PYNetDownload.h */,
-				150F06E21E9CB46800D3B4B4 /* PYNetDownload.m */,
-				150BF68C1EA06CDE00E320BB /* PYNetUpload.h */,
-				150BF68D1EA06CDE00E320BB /* PYNetUpload.m */,
-				15CC07CD1EA71BB90006B505 /* PYNetNormal.h */,
-				15CC07CC1EA71BB90006B505 /* PYNetNormal.m */,
+				15DC8F3A2303B1E000682D21 /* Source */,
 				15A21D471E9B6ABB0078D3FD /* AppDelegate.h */,
 				15A21D481E9B6ABB0078D3FD /* AppDelegate.m */,
 				15A21D4A1E9B6ABB0078D3FD /* ViewController.h */,
@@ -245,6 +252,43 @@
 				15A21D451E9B6ABB0078D3FD /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		15DC8F3A2303B1E000682D21 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				15DC8F422303CF6000682D21 /* Private */,
+				15DC8F3B2303B1EB00682D21 /* Public */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		15DC8F3B2303B1EB00682D21 /* Public */ = {
+			isa = PBXGroup;
+			children = (
+				150F06E11E9CB46800D3B4B4 /* PYNetDownload.h */,
+				150F06E21E9CB46800D3B4B4 /* PYNetDownload.m */,
+				15CC07CD1EA71BB90006B505 /* PYNetNormal.h */,
+				15CC07CC1EA71BB90006B505 /* PYNetNormal.m */,
+				150BF68C1EA06CDE00E320BB /* PYNetUpload.h */,
+				150BF68D1EA06CDE00E320BB /* PYNetUpload.m */,
+				150BF68F1EA06DA300E320BB /* PYNetwork.h */,
+				150BF6901EA06DA300E320BB /* PYNetwork.m */,
+				15DC8F372303AF6100682D21 /* PYNetworkReachabilityManager.h */,
+				15DC8F382303AF6100682D21 /* PYNetworkReachabilityManager.m */,
+			);
+			name = Public;
+			sourceTree = "<group>";
+		};
+		15DC8F422303CF6000682D21 /* Private */ = {
+			isa = PBXGroup;
+			children = (
+				15DC8F3C2303B67C00682D21 /* PYNetwork+__ContenType.h */,
+				15DC8F3D2303B67C00682D21 /* PYNetwork+__ContenType.m */,
+				15DC8F3F2303CE8700682D21 /* PYNetwork+__DataParse.h */,
+				15DC8F402303CE8700682D21 /* PYNetwork+__DataParse.m */,
+			);
+			name = Private;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -344,6 +388,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				15DC8F432303D6E900682D21 /* PYNetwork+__ContenType.m in Sources */,
+				15DC8F442303D6E900682D21 /* PYNetwork+__DataParse.m in Sources */,
+				15DC8F452303D6E900682D21 /* PYNetworkReachabilityManager.m in Sources */,
 				15CC08011EA7564D0006B505 /* PYNetUpload.m in Sources */,
 				15CC08021EA7564D0006B505 /* PYNetNormal.m in Sources */,
 				150BF6931EA0A18600E320BB /* PYNetwork.m in Sources */,
@@ -359,9 +406,12 @@
 				15CC07CE1EA71BB90006B505 /* PYNetNormal.m in Sources */,
 				150BF6911EA06DA300E320BB /* PYNetwork.m in Sources */,
 				15A21D4C1E9B6ABB0078D3FD /* ViewController.m in Sources */,
+				15DC8F3E2303B67C00682D21 /* PYNetwork+__ContenType.m in Sources */,
 				15A21D491E9B6ABB0078D3FD /* AppDelegate.m in Sources */,
 				15A21D461E9B6ABB0078D3FD /* main.m in Sources */,
+				15DC8F392303AF6100682D21 /* PYNetworkReachabilityManager.m in Sources */,
 				150BF68E1EA06CDE00E320BB /* PYNetUpload.m in Sources */,
+				15DC8F412303CE8700682D21 /* PYNetwork+__DataParse.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

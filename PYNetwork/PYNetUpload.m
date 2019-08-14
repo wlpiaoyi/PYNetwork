@@ -7,7 +7,9 @@
 //
 
 #import "PYNetUpload.h"
+#import "PYNetwork+__DataParse.h"
 #import <objc/runtime.h>
+
 @interface PYNetUpload()<NSURLSessionDelegate>
 
 PYPNSNA NSData * updateData;
@@ -82,7 +84,7 @@ PYPNSNA NSString * filePath;
         [mParams setObject:self.fileName forKey:@"fileName"];
         [mParams setObject:self.contentType forKey:@"contentType"];
         [mParams setObject:self.updateData forKey:uuid];
-        NSData * mdata = [PYNetwork parseParamsToHttpBody:mParams contentType:mHeaders[@"Content-Type"] keySorts:self.keySorts];
+        NSData * mdata = [PYNetwork parseParamsToHttpBody:mParams contentType:mHeaders[@"Content-Type"]];
         void * targetPointer = (__bridge void *)(self);
         kAssign(self);
         return [self.session uploadTaskWithRequest:request fromData:mdata completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {

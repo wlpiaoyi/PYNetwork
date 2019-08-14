@@ -107,6 +107,10 @@ kPNSNA NSString * certificationPassword;
                                             heads:(nullable NSDictionary<NSString *, NSString *> *) heads
                                             params:(nullable NSData *) params
                                             outTime:(CGFloat) outTime;
+@end
+
+@interface PYNetwork(DataParse)
+
 /**
  将键值对转换成对应的数据结构
  @param params 支持 NSString , NSDictionary, NSData
@@ -114,9 +118,28 @@ kPNSNA NSString * certificationPassword;
  application/x-www-form-urlencoded
  application/json
  application/xml
- @param keySorts 参数排序,仅当参数类型是form表单时有用
+ @param keySorts 参数排序,仅当c参数类型是form表单时有用
  */
 +(nonnull NSData *) parseParamsToHttpBody:(nullable id) params
-                                            contentType:(NSString *) contentType
-                                            keySorts:(nullable NSArray<NSString *> *) keySorts;
+                              contentType:(nullable NSString *) contentType
+                                 keySorts:(nullable NSArray<NSString *> *) keySorts;
+/**
+ 将键值对转换成对应的数据结构
+ @param params 支持 NSString , NSDictionary, NSData
+ @param contentType 支持
+ application/x-www-form-urlencoded
+ application/json
+ application/xml
+ */
++(nonnull NSData *) parseParamsToHttpBody:(nullable id) params
+                              contentType:(nullable NSString *) contentType;
+
+/**
+ 将键值对转换成对应的数据结构
+ @param params 参数
+ @param keySorts 参数排序
+ */
++(nonnull NSData *) parseParamsToFormBody:(nullable NSDictionary *) params
+                                 keySorts:(nullable NSArray<NSString *> *) keySorts;
+
 @end

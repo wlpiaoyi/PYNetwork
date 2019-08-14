@@ -8,6 +8,9 @@
 
 
 #import "PYNetwork.h"
+#import "PYNetwork+__DataParse.h"
+#import "PYNetwork+__ContenType.h"
+
 #import "pyutilea.h"
 #import <objc/runtime.h>
 
@@ -27,6 +30,12 @@ NSString * _Nonnull PYNET_HTTP_POST = @"POST";
 NSString * _Nonnull PYNET_HTTP_PUT = @"PUT";
 NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
 ///<==
+
+//NSString * PYNetworkDefaultCharset = @"UTF-8";
+//NSString * PYNetworkXWWWFormContentType = @"application/x-www-form-urlencoded;";
+//NSString * PYNetworkJsonContentType = @"application/json;";
+//NSString * PYNetworkXmlContentType = @"application/xml;";
+//NSString * PYNetworkMutipartFormContentType = @"multipart/form-data;";
 
 static id PYNETWORK_SYN = @"";
 
@@ -210,7 +219,7 @@ kPNSNA PYNetworkDelegate * delegate;
                                                 httpMethod:(nullable NSString*) httpMethod
                                                 heads:(nullable NSDictionary<NSString *, NSString *> *) heads
                                                 params:(nullable NSData *) params
-                                                outTime:(CGFloat) outTime;{
+                                                outTime:(CGFloat) outTime{
     NSURL *url = [NSURL URLWithString:urlString];
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:outTime];
@@ -224,219 +233,6 @@ kPNSNA PYNetworkDelegate * delegate;
     return  request;
 }
 
-/**
- 将键值对转换成对应的数据结构
- @param params 支持 NSString , NSDictionary, NSData
- @param contentType 支持
- application/x-www-form-urlencoded
- application/json
- application/xml
- @param keySorts 参数排序,仅当c参数类型是form表单时有用
- */
-+(nonnull NSData *) parseParamsToHttpBody:(nullable id) params
-                                            contentType:(NSString *) contentType
-                                            keySorts:(nullable NSArray<NSString *> *) keySorts{
-    
-    if(params == nil) return nil;
-    
-    if([params isKindOfClass:[NSData class]])
-        return params;
-    
-    if(!contentType || ![contentType isKindOfClass:[NSString class]] || contentType.length == 0)
-        contentType = @"application/x-www-form-urlencoded;charset=UTF-8";
-    
-    if([contentType containsString:@"application/x-www-form-urlencoded"] && [params isKindOfClass:[NSDictionary class]])
-        return [[self parseParamsToFrom:params keySorts:keySorts isAddPercentEncoding:YES] toData];
-    
-    else if([contentType containsString:@"application/x-www-form-urlencoded"] && [params isKindOfClass:[NSString class]])
-        return [((NSString *) params) toData];
-
-    else if([contentType containsString:@"application/json"])
-        return [self parseParamsToData:params];
-    
-    else if([contentType containsString:@"application/xml"])
-        return [self parseParamsToXml:params];
-
-    else if(contentType.length > 29 && [[contentType substringToIndex:29] isEqual:@"multipart/form-data;boundary="])
-        return [self parseParamsToMultipart:params contentType:contentType];
-    
-    else
-        NSAssert(false, @"PYNetwork.parseParamsToHttpBody params can't parset to httpbody that dataType is [%@] and contentType is [%@]", NSStringFromClass([params class]), contentType);
-    
-    return nil;
-}
-
-+(nullable NSData *) parseParamsToData:(nullable id) params{
-    if(!params) return nil;
-    
-    if([params isKindOfClass:[NSData class]] || [params isMemberOfClass:[NSData class]]){
-        return params;
-    }
-    
-    if([params isKindOfClass:[NSString class]] || [params isMemberOfClass:[NSString class]]){
-        return [((NSString *) params) toData];
-    }
-    
-    if([params isKindOfClass:[NSDictionary class]] || [params isMemberOfClass:[NSDictionary class]]){
-        return [((NSDictionary *) params) toData];
-    }
-    
-    if([params isKindOfClass:[NSArray class]] || [params isMemberOfClass:[NSArray class]]){
-        return [((NSArray *) params) toData];
-    }
-    
-    if([params isKindOfClass:[PYXmlElement class]] || [params isMemberOfClass:[PYXmlElement class]]){
-        return [[((PYXmlElement *) params) stringValue] toData];
-    }
-    
-    NSAssert(false, @"%@ %s param must be type for NSData, NSString, Dictionary or PYXmlElement", NSStringFromClass(self.class), sel_getName(_cmd));
-    
-    return nil;
-}
-
-/**
- 将param转换成Multipart数据结构
- */
-+(nullable NSData *) parseParamsToMultipart:(nullable id) params contentType:(NSString *) contentType{
-    if(!params) return nil;
-    
-    if([params isKindOfClass:[NSData class]] || [params isMemberOfClass:[NSData class]]){
-        return params;
-    }
-    
-    if([params isKindOfClass:[NSDictionary class]] || [params isMemberOfClass:[NSDictionary class]]){
-        NSMutableString * mString = [NSMutableString new];
-        NSString * uuid = [contentType substringFromIndex:29];
-        [mString appendFormat:@"--%@\r\n",uuid];
-        [mString appendFormat:@"Content-Disposition:form-data; name=\"file\"; filename=\"%@\"\r\nContent-Type:%@\r\n\r\n", params[@"fileName"], params[@"contentType"]];
-        NSMutableData * mdata = [[mString toData] mutableCopy];
-        [mdata appendData:params[uuid]];
-        [mdata appendData:[[NSString stringWithFormat:@"\r\n--%@",uuid] toData]];
-        mString = [NSMutableString new];
-        for(NSString * key in ((NSDictionary *)params).allKeys){
-            if([key isEqual:@"fileName"] || [key isEqual:@"contentType"] || [key isEqual:uuid]) continue;
-            [mString appendFormat:@"\r\nContent-Disposition:form-data; name=\"%@\"\r\n\r\n", key];
-            [mString appendFormat:@"%@\r\n--%@", params[key], uuid];
-        }
-        [mdata appendData:[mString toData]];
-        return mdata;
-    }
-    
-    NSAssert(false, @"%@ %s param must be type for NSData or Dictionary", NSStringFromClass(self.class), sel_getName(_cmd));
-    
-    return nil;
-}
-
-
-
-/**
- 将param对转换成form表单
- #params 键值对
- #keySorts 排序
- */
-+(nullable NSData *) parseParamsToXml:(nullable id) params{
-    if(!params) return nil;
-    
-    if([params isKindOfClass:[NSData class]] || [params isMemberOfClass:[NSData class]]){
-        return params;
-    }
-    
-    if([params isKindOfClass:[NSString class]] || [params isMemberOfClass:[NSString class]]){
-        return [params toData];
-    }
-    
-    if([params isKindOfClass:[PYXmlElement class]] || [params isMemberOfClass:[PYXmlElement class]]){
-        return [[((PYXmlElement *) params) stringValue] toData];
-    }
-    
-    NSAssert(false, @"%@ %s param must be type for NSData, NSString or Dictionary", NSStringFromClass(self.class), sel_getName(_cmd));
-    
-    return nil;
-}
-
-/**
- 将param对转换成form表单
- #params 键值对
- #keySorts 排序
- */
-+(nullable NSString *) parseParamsToFrom:(nullable id) params keySorts:(nullable NSArray<NSString *> *) keySorts isAddPercentEncoding:(BOOL) isAddPercentEncoding{
-    if(!params) return nil;
-    
-    if([params isKindOfClass:[NSData class]] || [params isMemberOfClass:[NSData class]]){
-        if(isAddPercentEncoding){
-            return [PYNetwork __PARAM_TO_BSTR:[params toString]];
-        }
-        return [params toString];
-    }
-    
-    if([params isKindOfClass:[NSString class]] || [params isMemberOfClass:[NSString class]]){
-        if(isAddPercentEncoding){
-            return [PYNetwork __PARAM_TO_BSTR:params];
-        }
-        return params;
-    }
-    
-    if([params isKindOfClass:[NSDictionary class]] || [params isMemberOfClass:[NSDictionary class]]){
-        NSAssert([params isKindOfClass:[NSDictionary class]], @"%@ parseDictinaryToFrom param type must be Dictionary type", NSStringFromClass(self));
-        if(![params isKindOfClass:[NSDictionary class]]) return nil;
-        NSMutableString * formString = [NSMutableString new];
-        NSArray<NSString *> * allKeys = ((NSDictionary *)params).allKeys;
-        if(keySorts && keySorts.count){
-            NSMutableArray * temp = [allKeys mutableCopy];
-            [temp removeObjectsInArray:keySorts];
-            NSMutableArray * tak = [NSMutableArray arrayWithArray:keySorts];
-            [tak addObjectsFromArray:temp];
-            allKeys = tak;
-        }
-        for (NSString * key in allKeys) {
-            [self parseForFormString:formString key:key value:params[key] isAddPercentEncoding:isAddPercentEncoding];
-        }
-        return formString.length > 1 ? [formString substringToIndex:formString.length - 1] : formString;
-    }
-    
-    NSAssert(false, @"%@ %s param must be type for NSData, NSString or Dictionary", NSStringFromClass(self.class), sel_getName(_cmd));
-    
-    return nil;
-}
-
-//form表单传参全类型支持
-+(void)parseForFormString:(NSMutableString *) formString key:(NSString *) key value:(id) value isAddPercentEncoding:(BOOL) isAddPercentEncoding{
-    if(!value) return;
-    
-    if([value isKindOfClass:[NSString class]]){
-        if(isAddPercentEncoding){
-            value = [PYNetwork __FIELD_TO_BSTR:value];
-            key = [PYNetwork __FIELD_TO_BSTR:key];
-        }
-        
-        [formString appendString:key];
-        [formString appendString:@"="];
-        [formString appendString:value];
-        [formString appendString:@"&"];
-    }else if([value isKindOfClass:[NSArray class]]){
-        for (id v in value) {
-            [self parseForFormString:formString key:key value:v isAddPercentEncoding:isAddPercentEncoding];
-        }
-    }else if([value isKindOfClass:[NSData class]]){
-        [self parseForFormString:formString key:key value:[((NSData*)value) toString] isAddPercentEncoding:isAddPercentEncoding];
-    }else if([value isKindOfClass:[NSNumber class]]){
-        [self parseForFormString:formString key:key value:[((NSNumber*)value) stringValue] isAddPercentEncoding:isAddPercentEncoding];
-    }else if([value isKindOfClass:[NSDate class]]){
-        [self parseForFormString:formString key:key value:[((NSDate*)value) dateFormateDate:PYNET_DATE_PATTERN] isAddPercentEncoding:isAddPercentEncoding];
-    }else{
-        [self parseForFormString:formString key:key value:[(NSDictionary *)[value objectToDictionary] toData] isAddPercentEncoding:isAddPercentEncoding];
-    }
-    
-}
-
-+(nonnull NSString *) __FIELD_TO_BSTR:(nonnull NSString*) str{
-    NSString *bStr = (__bridge NSString*)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)str, NULL, PYNET_PERCENT_FIELD, kCFStringEncodingUTF8);
-    return bStr;
-}
-+(nonnull NSString *) __PARAM_TO_BSTR:(nonnull NSString*) str{
-    NSString *bStr = (__bridge NSString*)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)str, NULL, PYNET_PERCENT_PARAM, kCFStringEncodingUTF8);
-    return bStr;
-}
 @end
 
 @implementation PYIdentityAndTrust @end
@@ -512,4 +308,77 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend{
     }
 }
 #pragma NSURLSessionTaskDelegate <==
+@end
+
+
+@implementation PYNetwork(DataParse)
+/**
+ 将键值对转换成对应的数据结构
+ @param params 支持 NSString , NSDictionary, NSData
+ @param contentType 支持
+ application/x-www-form-urlencoded
+ application/json
+ application/xml
+ @param keySorts 参数排序,仅当c参数类型是form表单时有用
+ */
++(nonnull NSData *) parseParamsToHttpBody:(nullable id) params
+                              contentType:(nullable NSString *) contentType
+                                 keySorts:(nullable NSArray<NSString *> *) keySorts{
+    if(keySorts && keySorts.count > 0 && [contentType isEqual:@"application/x-www-form-urlencoded;charset=UTF-8"]){
+        return [self parseParamsToFormBody:params keySorts:keySorts];
+    }else{
+        return [self parseParamsToHttpBody:params contentType:contentType];
+    }
+}
+/**
+ 将键值对转换成对应的数据结构
+ @param params 支持 NSString , NSDictionary, NSData
+ @param contentType 支持
+ application/x-www-form-urlencoded
+ application/json
+ application/xml
+ */
++(nonnull NSData *) parseParamsToHttpBody:(nullable id) params
+                              contentType:(nullable NSString *) contentType{
+    
+    if(params == nil) return nil;
+    
+    if([params isKindOfClass:[NSData class]])
+        return params;
+    
+    if(!contentType || ![contentType isKindOfClass:[NSString class]] || contentType.length == 0)
+        contentType = @"application/x-www-form-urlencoded;charset=UTF-8";
+    
+    if([PYNetwork isContentTypeForWFormData:contentType]){
+        if([params isKindOfClass:[NSDictionary class]])
+            return [[self parseParamsToFrom:params keySorts:nil isAddPercentEncoding:YES] toData];
+        else if([params isKindOfClass:[NSString class]])
+            return [((NSString *) params) toData];
+    }
+    
+    else if([PYNetwork isContentTypeForJson:contentType])
+        return [self parseParamsToData:params];
+    
+    else if([PYNetwork isContentTypeForXml:contentType])
+        return [self parseParamsToXml:params];
+    
+    else if([PYNetwork isContentTypeForMFormData:contentType])
+        return [self parseParamsToMultipart:params contentType:contentType];
+    
+    else
+        NSAssert(false, @"PYNetwork.parseParamsToHttpBody params can't parset to httpbody that dataType is [%@] and contentType is [%@]", NSStringFromClass([params class]), contentType);
+    
+    return nil;
+}
+
+/**
+ 将键值对转换成对应的数据结构
+ @param params 参数
+ @param keySorts 参数排序
+ */
++(nonnull NSData *) parseParamsToFormBody:(nullable NSDictionary *) params
+                                 keySorts:(nullable NSArray<NSString *> *) keySorts{
+    return  [[self parseParamsToFrom:params keySorts:keySorts isAddPercentEncoding:YES] toData];
+}
+
 @end
