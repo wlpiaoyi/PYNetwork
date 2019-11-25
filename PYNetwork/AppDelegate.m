@@ -9,7 +9,7 @@
 #import "AppDelegate.h"
 #import "PYNetUpload.h"
 #import "PYNetDownload.h"
-#import "NSData+Expand.h"
+#import "NSData+PYExpand.h"
 #import "PYNetworkReachabilityManager.h"
 
 @interface AppDelegate ()
@@ -20,39 +20,77 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
     [[PYNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(PYNetworkReachabilityStatus status) {
         NSLog(@"%ld", status);
     }];
     [[PYNetworkReachabilityManager sharedManager] startMonitoring];
-//    PYNetDownload * netd = [PYNetDownload new];
-//    netd.url = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1511767451861&di=d4fb1a8ba225446d1a23d36a0e154bdb&imgtype=0&src=http%3A%2F%2Fimg2.niutuku.com%2Fdesk%2F1208%2F1542%2Fntk-1542-29992.jpg";
-//    [netd setBlockDownloadProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {
-//        NSLog(@"");
-//    }];
-//    [netd setBlockReceiveChallenge:^BOOL(id  _Nullable data, PYNetwork * _Nonnull target) {
-//        return true;
-//    }];
-//    [netd setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
-//        NSLog(@"");
-//    }];
-//    [netd setBlockCancel:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) {
-//        NSLog(@"");
-//    }];
-//    [netd resume];
-//    [netd cancel];
     
-//    static PYNetUpload * network;
-//    network = [PYNetUpload new];
-//    network.method = PYNET_HTTP_POST;
-//    network.url = @"http://192.168.1.186:8081/upload";//@"http://staging.obt.slyi.cc/tmcs_uac/tmc/uploadImg.json";
-//    network.params = @{@"aa":@"bb"};
-//    [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
-//        NSLog(@"%@", [((NSData *)data) description]);
-//    }];
-//    [network resumeWithData:UIImagePNGRepresentation([UIImage imageNamed:@"1.png"]) fileName:@"1.png" contentType:@"image/png"];
-//    [network resumeWithPath:[NSString stringWithFormat:@"%@/1.png",bundleDir] fileName:@"1.png" contentType:@"image/png"];
-//    [network resumeWithData:[NSData new]];
+    static PYNetUpload * network;
+    network = [PYNetUpload new];
+    network.method = PYNET_HTTP_POST;
+    network.url = @"http://120.26.218.52:8088/aomi/tiktok/account/import/emailAccounts";
+    [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
+        NSLog(@"%@", [((NSData *)data) toDictionary]);
+    }];
+    NSArray * emailTails=  @[@"@Gmail.com",@"@yahoo.com",@"@mail.ru",@"@Gmail.com",@"@yahoo.com",@"@Gmail.com",@"@yahoo.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@yahoo.com",@"@mail.ru",@"@Gmail.com",@"@yahoo.com",@"@Gmail.com",@"@yahoo.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com"];
+    NSMutableString * strs = [NSMutableString new];
+    for (NSString * emailTail in emailTails) {
+        int i = 10;
+        while (i-- > 0) {
+            [strs appendFormat:@"%@%@::%@::%@\n", [self.class randomName:(arc4random() % (4)) + 8], emailTail, kFORMAT(@"%@%@%@%@",[self.class randomName:8], [self.class randomUpchars:1], [self.class randomLowerchars:1], [self.class randomIntchars:1]),[self.class randomDateStr]];
+        }
+    }
+    [network resumeWithData:strs.toData fileName:@"data" contentType:@"text"];;
     return YES;
+}
+
++(NSString *) randomName:(int) length{
+    static char table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    NSMutableString * names = [NSMutableString new];
+    for (int i = 0; i< length; i++) {
+         int i = arc4random() % (62);
+        [names appendFormat:@"%c", table[i]];
+    }
+    return names;
+}
+
++(NSString *) randomUpchars:(int) length{
+    static char table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    NSMutableString * names = [NSMutableString new];
+    for (int i = 0; i< length; i++) {
+        int i = arc4random() % (26);
+        [names appendFormat:@"%c", table[i]];
+    }
+    return names;
+}
+
++(NSString *) randomLowerchars:(int) length{
+    static char table[] = "abcdefghijklmnopqrstuvwxyz";
+    NSMutableString * names = [NSMutableString new];
+    for (int i = 0; i< length; i++) {
+        int i = arc4random() % (26);
+        [names appendFormat:@"%c", table[i]];
+    }
+    return names;
+}
+
++(NSString *) randomIntchars:(int) length{
+    static char table[] = "0123456789";
+    NSMutableString * names = [NSMutableString new];
+    for (int i = 0; i< length; i++) {
+        int i = arc4random() % (10);
+        [names appendFormat:@"%c", table[i]];
+    }
+    return names;
+}
+
+
++(NSString *) randomDateStr{
+    int i = random() % (365 * 14);
+    NSDate * date = [@"1980-01-01" dateFormateString:nil];
+    date = [date offsetDay:i];
+    return [date dateFormateDate:@"yyyy-MM-dd"];
 }
 
 

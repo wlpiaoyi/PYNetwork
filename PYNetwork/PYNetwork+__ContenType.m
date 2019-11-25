@@ -9,10 +9,10 @@
 #import "PYNetwork+__ContenType.h"
 
 NSString * PYNetworkDefaultCharset = @"UTF-8";
-NSString * PYNetworkXWWWFormContentType = @"application/x-www-form-urlencoded;";
-NSString * PYNetworkJsonContentType = @"application/json;";
-NSString * PYNetworkXmlContentType = @"application/xml;";
-NSString * PYNetworkMutipartFormContentType = @"multipart/form-data;";
+NSString * PYNetworkXWWWFormContentType = @"application/x-www-form-urlencoded";
+NSString * PYNetworkJsonContentType = @"application/json";
+NSString * PYNetworkXmlContentType = @"application/xml";
+NSString * PYNetworkMutipartFormContentType = @"multipart/form-data";
 
 @implementation PYNetwork(__ContenType)
 
