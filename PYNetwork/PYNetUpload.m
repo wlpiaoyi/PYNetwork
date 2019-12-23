@@ -58,7 +58,7 @@ PYPNSNA NSString * filePath;
 }
 
 
--(nullable NSURLSessionTask *) createSessionTask{
+-(nullable NSURLSessionTask *) createDefaultSessionTask{
     if(![NSString isEnabled:self.url]) return nil;
     if([NSString isEnabled:self.filePath]){
         NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];

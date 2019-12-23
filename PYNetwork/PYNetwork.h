@@ -33,9 +33,6 @@ extern NSString * _Nonnull PYNET_HTTP_DELETE;
 ///<==
 
 @class PYNetwork;
-@interface PYNetworkDelegate:NSObject<NSURLSessionDelegate>
-kPNA PYNetwork * _Nullable network;
-@end
 
 @interface PYNetwork : NSObject
 
@@ -70,7 +67,9 @@ kPNCNA void (^blockComplete)(id _Nullable data, NSURLResponse * _Nullable respon
 //=========================================>
 kPNSNA NSString * certificationName;
 kPNSNA NSString * certificationPassword;
-///<=========================================)
+///<=========================================
+
+-(nullable instancetype) initWithSession:(nullable NSURLSession *) session;
 
 //=========================================>
 /**
@@ -86,14 +85,13 @@ kPNSNA NSString * certificationPassword;
  */
 -(BOOL) cancel;
 /**
- 强制中断请求
- 不可短点恢复
+ 取消请求和会话
  */
 -(void) interrupt;
 ///<=========================================
 
--(nullable NSURLSession*) createSession;
--(nullable NSURLSessionTask *) createSessionTask;
+-(nullable NSURLSession*) createDefaultSession;
+-(nullable NSURLSessionTask *) createDefaultSessionTask;
 
 /**
  创建网络请求

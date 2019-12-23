@@ -10,14 +10,16 @@
 #import "PYNetwork.h"
 #import "PYNetwork+__DataParse.h"
 #import "PYNetwork+__ContenType.h"
+#import "PYNetwork+ActivityIndicator.h"
+#import "PYNetworkDelegate.h"
 
 #import "pyutilea.h"
 #import <objc/runtime.h>
 
 
-static NSInteger PYNetworkActivityIndicatorIndex = 0;
+//static NSInteger PYNetworkActivityIndicatorIndex = 0;
 
-NSTimeInterval PYNET_OUTTIME = 30;
+NSTimeInterval PYNET_OUTTIME = 10;
 
 NSString *  PYNET_DATE_PATTERN = @"yyyy-MM-dd HH:mm:ss";
 
@@ -37,29 +39,35 @@ NSString * _Nonnull PYNET_HTTP_DELETE = @"DELETE";
 //NSString * PYNetworkXmlContentType = @"application/xml;";
 //NSString * PYNetworkMutipartFormContentType = @"multipart/form-data;";
 
-static id PYNETWORK_SYN = @"";
+static id PYNETWORK_SYN = @"PYNETWORK_SYN";
 
-@interface PYIdentityAndTrust:NSObject
-kPNA SecIdentityRef  secIdentity;
-kPNA SecTrustRef secTrust;
-kPNSNN NSArray * cerArray;
-kPNSNA NSData * bodyData;
-@end
-
-@interface PYNetworkDelegate()
-@end
 
 @interface PYNetwork(){
 @private
     id synrequest;
+    NSTimer * outterCheckTimer;
+@public
+    NSTimeInterval outTimeInterval;
 }
 kPNSNA PYNetworkDelegate * delegate;
 @end
 
 @implementation PYNetwork
+
+-(instancetype) initWithSession:(nullable NSURLSession *) session{
+    if(self = [super init]){
+        _session = session;
+        synrequest = @"synrequest";
+        _state = PYNetworkStateUnkwon;
+        self.outTime = PYNET_OUTTIME;
+        self.method = (NSString *)PYNET_HTTP_GET;
+        objc_setAssociatedObject([PYNetwork class], (__bridge const void * _Nonnull)(self), @(YES), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return self;
+}
 -(nullable instancetype) init{
     if (self = [super init]) {
-        synrequest = @"";
+        synrequest = @"synrequest";
         _state = PYNetworkStateUnkwon;
         self.outTime = PYNET_OUTTIME;
         self.method = (NSString *)PYNET_HTTP_GET;
@@ -68,16 +76,24 @@ kPNSNA PYNetworkDelegate * delegate;
     return self;
 }
 
+-(void) checkForInterrupt{
+    outTimeInterval--;
+    if(outTimeInterval <= 0){
+        [self interrupt];
+    }
+}
+
 -(BOOL) resume{
+    outTimeInterval = self.outTime;
     @synchronized(synrequest){
+        outterCheckTimer = [NSTimer timerWithTimeInterval:1 target:self selector:@selector(checkForInterrupt) userInfo:nil repeats:YES];
+        [[NSRunLoop currentRunLoop] addTimer:outterCheckTimer forMode:NSRunLoopCommonModes];
+        [outterCheckTimer fire];
         if(self.state == PYNetworkStateResume) return false;
-        if(self.session == nil)
-            _session = [self createSession];
-        self.delegate.network = self;
-        
+        if(self.session == nil) _session = [self createDefaultSession];
         if(self.state == PYNetworkStateResume) return false;
         
-        if(!self.sessionTask) self.sessionTask = [self createSessionTask];
+        if(!self.sessionTask) self.sessionTask = [self createDefaultSessionTask];
         if(!self.sessionTask) return false;
         
         [self.sessionTask resume];
@@ -90,6 +106,8 @@ kPNSNA PYNetworkDelegate * delegate;
 }
 -(BOOL) suspend{
     @synchronized(synrequest) {
+        [outterCheckTimer invalidate];
+        outterCheckTimer = nil;
         if(self.state != PYNetworkStateResume) return false;
         if (!self.sessionTask) return false;
         
@@ -119,49 +137,30 @@ kPNSNA PYNetworkDelegate * delegate;
             [PYNetwork removeNetworkActivityIndicatorVisibel];
         }
         _state = PYNetworkStateInterrupt;
+        [self __cancel];
         if(self.session){
             [self.session invalidateAndCancel];
-            [self __cancel];
             _session = nil;
         }
+        self.delegate.network= nil;
+        self.delegate = nil;
     }
 }
 
 -(BOOL) __cancel{
     @try{
+        [outterCheckTimer invalidate];
+        outterCheckTimer = nil;
         if (!self.sessionTask) return false;
         [self.sessionTask cancel];
     }@finally{
         self.sessionTask = nil;
-        self.delegate.network = nil;
     }
     return true;
 }
 
-+(void) addNetworkActivityIndicatorVisibel{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        @synchronized(PYNETWORK_SYN){
-            PYNetworkActivityIndicatorIndex++;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
-            });
-        }
-    });
-}
 
-+(void) removeNetworkActivityIndicatorVisibel{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        @synchronized(PYNETWORK_SYN){
-            PYNetworkActivityIndicatorIndex--;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:PYNetworkActivityIndicatorIndex > 0];
-            });
-        }
-    });
-}
-
-
--(nullable NSURLSession*) createSession{
+-(nullable NSURLSession*) createDefaultSession{
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     configuration.URLCache = [[NSURLCache alloc] initWithMemoryCapacity:20 * 1024 * 1024 diskCapacity:0 diskPath:nil];
     configuration.requestCachePolicy = NSURLRequestUseProtocolCachePolicy;
@@ -169,7 +168,8 @@ kPNSNA PYNetworkDelegate * delegate;
     self.delegate.network = self;
     return [NSURLSession sessionWithConfiguration:configuration delegate:self.delegate delegateQueue:[NSOperationQueue mainQueue]];
 }
--(nullable NSURLSessionTask *) createSessionTask{
+
+-(nullable NSURLSessionTask *) createDefaultSessionTask{
     NSURLRequest * request = nil;
     if([self.method isEqual:PYNET_HTTP_GET] || [self.method isEqual:PYNET_HTTP_DELETE]){
         NSString * url = nil;
@@ -233,82 +233,12 @@ kPNSNA PYNetworkDelegate * delegate;
     return  request;
 }
 
++(id) __GET__PYNETWORK_SYN{
+    return PYNETWORK_SYN;
+}
+
 @end
 
-@implementation PYIdentityAndTrust @end
-
-@implementation PYNetworkDelegate
-
-#pragma mark - NSURLSessionDelegate ==>
-- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error{}
-
-- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session{}
-
-//NSURLAuthenticationChallenge 中的protectionSpace对象存放了服务器返回的证书信息
-//如何处理证书?(使用、忽略、拒绝。。)
-- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler{
-    if(self.network.blockReceiveChallenge && self.network.blockReceiveChallenge(challenge, self.network)){
-        NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];//服务器信任证书
-        if(completionHandler) completionHandler(NSURLSessionAuthChallengeUseCredential,credential);
-    }else{
-        //证书分为好几种：服务器信任的证书、输入密码的证书  。。，所以这里最好判断
-        if([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]){//服务器信任证书
-            NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-            if(completionHandler) completionHandler(NSURLSessionAuthChallengeUseCredential,credential);
-        }else if([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate]){//输入密码的证书
-            PYIdentityAndTrust * identityAndTrust = [self extractIdentity];
-            NSURLCredential * urlCredential =   [[NSURLCredential alloc] initWithIdentity:identityAndTrust.secIdentity certificates:identityAndTrust.cerArray persistence:NSURLCredentialPersistenceForSession];
-            completionHandler(NSURLSessionAuthChallengeUseCredential, urlCredential);
-        }
-    }
-    NSLog(@"completionHandler:%@",challenge.protectionSpace.authenticationMethod);
-}
-#pragma NSURLSessionDelegate <==
-
--(PYIdentityAndTrust *) extractIdentity{
-    OSStatus securityError = errSecSuccess;
-    NSString * securtyPath = [NSBundle pathForResource:self.network.certificationName ofType:@"p12" inDirectory:(NSString *)bundleDir];
-    NSData * pKCS12Data = [NSData dataWithContentsOfFile:securtyPath];
-    NSString * key = (NSString *)kSecImportExportPassphrase;
-    NSDictionary * options = @{key:self.network.certificationPassword};//客户端证书密码
-    CFArrayRef items = nil;
-    securityError = SecPKCS12Import((CFDataRef)pKCS12Data, (CFDictionaryRef)options, &items);
-    if(securityError == errSecSuccess){
-        CFArrayRef certItems = items;
-        NSArray * certItemsArray = (__bridge NSArray *)(certItems);
-        NSObject * dict = certItemsArray.firstObject;
-        NSDictionary * certEntry = nil;
-        if((certEntry = (NSDictionary *)dict)){
-            NSObject * identityPointer = certEntry[@"identity"];
-            SecIdentityRef secIdentityRef = (__bridge SecIdentityRef)(identityPointer);
-            
-            NSObject * trustPointer = certEntry[@"trust"];
-            SecTrustRef trustRef = (__bridge SecTrustRef)(trustPointer);
-            
-            NSArray * chainPointer = certEntry[@"chain"];
-            
-            PYIdentityAndTrust * identityAndTrust = [PYIdentityAndTrust new];
-            identityAndTrust.secIdentity = secIdentityRef;
-            identityAndTrust.secTrust = trustRef;
-            identityAndTrust.cerArray = chainPointer;
-            
-            return identityAndTrust;
-        }
-    }
-    return nil;
-}
-
-#pragma NSURLSessionTaskDelegate ==>
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
-   didSendBodyData:(int64_t)bytesSent
-    totalBytesSent:(int64_t)totalBytesSent
-totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend{
-    if(self.network.blockSendProgress){
-        self.network.blockSendProgress(self.network, bytesSent, totalBytesSent);
-    }
-}
-#pragma NSURLSessionTaskDelegate <==
-@end
 
 
 @implementation PYNetwork(DataParse)

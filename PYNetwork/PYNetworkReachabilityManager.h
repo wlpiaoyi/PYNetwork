@@ -190,7 +190,7 @@ FOUNDATION_EXPORT NSString * const PYNetworkingReachabilityNotificationStatusIte
 /**
  Returns a localized string representation of an `PYNetworkReachabilityStatus` value.
  */
-FOUNDATION_EXPORT NSString * AFStringFromNetworkReachabilityStatus(PYNetworkReachabilityStatus status);
+FOUNDATION_EXPORT NSString * PYStringFromNetworkReachabilityStatus(PYNetworkReachabilityStatus status);
 
 NS_ASSUME_NONNULL_END
 #endif

@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		1502A599223A3E3F00F0787A /* libpyutilea.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1502A598223A3E3F00F0787A /* libpyutilea.a */; };
+		1504D67323B0B4F7007B0A26 /* PYNetwork+ActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 1504D67223B0B4F7007B0A26 /* PYNetwork+ActivityIndicator.m */; };
+		1504D67623B0B5BD007B0A26 /* PYNetworkDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1504D67523B0B5BD007B0A26 /* PYNetworkDelegate.m */; };
+		1504D67723B0B6E1007B0A26 /* PYNetwork+ActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 1504D67223B0B4F7007B0A26 /* PYNetwork+ActivityIndicator.m */; };
+		1504D67823B0B6E1007B0A26 /* PYNetworkDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1504D67523B0B5BD007B0A26 /* PYNetworkDelegate.m */; };
+		1504D67B23B0B7CD007B0A26 /* PYNetDownloadDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1504D67A23B0B7CD007B0A26 /* PYNetDownloadDelegate.m */; };
+		1504D67C23B0B813007B0A26 /* PYNetDownloadDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1504D67A23B0B7CD007B0A26 /* PYNetDownloadDelegate.m */; };
 		150BF68E1EA06CDE00E320BB /* PYNetUpload.m in Sources */ = {isa = PBXBuildFile; fileRef = 150BF68D1EA06CDE00E320BB /* PYNetUpload.m */; };
 		150BF6911EA06DA300E320BB /* PYNetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 150BF6901EA06DA300E320BB /* PYNetwork.m */; };
 		150BF6921EA0A17F00E320BB /* PYNetwork.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 150BF68F1EA06DA300E320BB /* PYNetwork.h */; };
@@ -59,6 +65,12 @@
 		1502A44B223A3A1200F0787A /* libpyutilea.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libpyutilea.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		1502A44D223A3A3100F0787A /* libpykita.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libpykita.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		1502A598223A3E3F00F0787A /* libpyutilea.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libpyutilea.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1504D67123B0B4F7007B0A26 /* PYNetwork+ActivityIndicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PYNetwork+ActivityIndicator.h"; sourceTree = "<group>"; };
+		1504D67223B0B4F7007B0A26 /* PYNetwork+ActivityIndicator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "PYNetwork+ActivityIndicator.m"; sourceTree = "<group>"; };
+		1504D67423B0B5BD007B0A26 /* PYNetworkDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PYNetworkDelegate.h; sourceTree = "<group>"; };
+		1504D67523B0B5BD007B0A26 /* PYNetworkDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PYNetworkDelegate.m; sourceTree = "<group>"; };
+		1504D67923B0B7CD007B0A26 /* PYNetDownloadDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PYNetDownloadDelegate.h; sourceTree = "<group>"; };
+		1504D67A23B0B7CD007B0A26 /* PYNetDownloadDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PYNetDownloadDelegate.m; sourceTree = "<group>"; };
 		150BF68C1EA06CDE00E320BB /* PYNetUpload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYNetUpload.h; sourceTree = "<group>"; };
 		150BF68D1EA06CDE00E320BB /* PYNetUpload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PYNetUpload.m; sourceTree = "<group>"; };
 		150BF68F1EA06DA300E320BB /* PYNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYNetwork.h; sourceTree = "<group>"; };
@@ -111,6 +123,7 @@
 		15A91DA7238B9A0900F5517B /* NSDate+PYExpand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDate+PYExpand.h"; path = "../../../PYUtile/PYUtile/Source/Public/Expand/NSDate+PYExpand.h"; sourceTree = "<group>"; };
 		15A91E09238B9B7600F5517B /* pyutilea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pyutilea.h; path = ../../../PYUtile/pyutilea/pyutilea.h; sourceTree = "<group>"; };
 		15A91E0E238B9D4500F5517B /* NSArray+PYExpand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSArray+PYExpand.h"; path = "../../../PYUtile/PYUtile/Source/Public/Expand/NSArray+PYExpand.h"; sourceTree = "<group>"; };
+		15A91E0E238B9D4500F5518B /* UIButton+PYExpand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIButton+PYExpand.h"; path = "../../../PYUtile/PYUtile/Source/Public/Expand/UIButton+PYExpand.h"; sourceTree = "<group>"; };
 		15CC07C41EA5B8BC0006B505 /* 1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1.png; sourceTree = "<group>"; };
 		15CC07CC1EA71BB90006B505 /* PYNetNormal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PYNetNormal.m; sourceTree = "<group>"; };
 		15CC07CD1EA71BB90006B505 /* PYNetNormal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYNetNormal.h; sourceTree = "<group>"; };
@@ -152,6 +165,7 @@
 		1502A425223A39C900F0787A /* PYUtile */ = {
 			isa = PBXGroup;
 			children = (
+				15A91E0E238B9D4500F5518B /* UIButton+PYExpand.h */,
 				15A91E0E238B9D4500F5517B /* NSArray+PYExpand.h */,
 				15A91E09238B9B7600F5517B /* pyutilea.h */,
 				15A91D8B238B9A0500F5517B /* EXTScope.h */,
@@ -287,6 +301,12 @@
 				15DC8F3D2303B67C00682D21 /* PYNetwork+__ContenType.m */,
 				15DC8F3F2303CE8700682D21 /* PYNetwork+__DataParse.h */,
 				15DC8F402303CE8700682D21 /* PYNetwork+__DataParse.m */,
+				1504D67123B0B4F7007B0A26 /* PYNetwork+ActivityIndicator.h */,
+				1504D67223B0B4F7007B0A26 /* PYNetwork+ActivityIndicator.m */,
+				1504D67423B0B5BD007B0A26 /* PYNetworkDelegate.h */,
+				1504D67523B0B5BD007B0A26 /* PYNetworkDelegate.m */,
+				1504D67923B0B7CD007B0A26 /* PYNetDownloadDelegate.h */,
+				1504D67A23B0B7CD007B0A26 /* PYNetDownloadDelegate.m */,
 			);
 			name = Private;
 			sourceTree = "<group>";
@@ -388,6 +408,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1504D67C23B0B813007B0A26 /* PYNetDownloadDelegate.m in Sources */,
+				1504D67723B0B6E1007B0A26 /* PYNetwork+ActivityIndicator.m in Sources */,
+				1504D67823B0B6E1007B0A26 /* PYNetworkDelegate.m in Sources */,
 				15DC8F432303D6E900682D21 /* PYNetwork+__ContenType.m in Sources */,
 				15DC8F442303D6E900682D21 /* PYNetwork+__DataParse.m in Sources */,
 				15DC8F452303D6E900682D21 /* PYNetworkReachabilityManager.m in Sources */,
@@ -406,12 +429,15 @@
 				15CC07CE1EA71BB90006B505 /* PYNetNormal.m in Sources */,
 				150BF6911EA06DA300E320BB /* PYNetwork.m in Sources */,
 				15A21D4C1E9B6ABB0078D3FD /* ViewController.m in Sources */,
+				1504D67B23B0B7CD007B0A26 /* PYNetDownloadDelegate.m in Sources */,
+				1504D67623B0B5BD007B0A26 /* PYNetworkDelegate.m in Sources */,
 				15DC8F3E2303B67C00682D21 /* PYNetwork+__ContenType.m in Sources */,
 				15A21D491E9B6ABB0078D3FD /* AppDelegate.m in Sources */,
 				15A21D461E9B6ABB0078D3FD /* main.m in Sources */,
 				15DC8F392303AF6100682D21 /* PYNetworkReachabilityManager.m in Sources */,
 				150BF68E1EA06CDE00E320BB /* PYNetUpload.m in Sources */,
 				15DC8F412303CE8700682D21 /* PYNetwork+__DataParse.m in Sources */,
+				1504D67323B0B4F7007B0A26 /* PYNetwork+ActivityIndicator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
