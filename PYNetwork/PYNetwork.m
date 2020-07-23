@@ -133,6 +133,8 @@ kPNSNA PYNetworkDelegate * delegate;
 
 -(void) interrupt{
     @synchronized(synrequest){
+        self.delegate.network= nil;
+        self.delegate = nil;
         if(_state == PYNetworkStateResume){
             [PYNetwork removeNetworkActivityIndicatorVisibel];
         }
@@ -142,8 +144,6 @@ kPNSNA PYNetworkDelegate * delegate;
             [self.session invalidateAndCancel];
             _session = nil;
         }
-        self.delegate.network= nil;
-        self.delegate = nil;
     }
 }
 

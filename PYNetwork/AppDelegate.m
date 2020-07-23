@@ -26,6 +26,21 @@
     }];
     [[PYNetworkReachabilityManager sharedManager] startMonitoring];
     
+    static PYNetDownload * download;
+    download = [PYNetDownload new];
+    download.url = @"http://185.38.13.130//mp43/354441.mp4?st=4TAONEpXMkpDTUf3wnU8KQ&e=1580878232";
+    [download setBlockDownloadProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {
+        NSLog(@"%.2f%%", (double)currentBytes/(double)totalBytes * 100.);
+    }];
+    download.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
+        NSLog(@"");
+        
+    };
+    [download setBlockCancel:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) {
+        NSLog(@"");
+    }];
+    [download resume];
+    
     static PYNetUpload * network;
     network = [PYNetUpload new];
     network.method = PYNET_HTTP_POST;

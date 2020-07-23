@@ -10,6 +10,12 @@
 #import "PYNetDownload.h"
 
 
+@interface PYNetwork(){
+@public
+    NSTimeInterval outTimeInterval;
+}
+@end
+
 @interface PYNetDownload()
 kPNSNA PYNetDownloadDelegate * delegate;
 @property (nonatomic, copy, nullable) void (^_blockCancel_)(id _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) ;
@@ -22,6 +28,8 @@ kPNSNA PYNetDownloadDelegate * delegate;
 
 //这个方法用来跟踪下载数据并且根据进度刷新ProgressView
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite{
+    if(self.network == nil) return;
+    self.network->outTimeInterval = self.network.outTime;
     if (((PYNetDownload *)self.network)._blockDownloadProgress_) {
         ((PYNetDownload *)self.network)._blockDownloadProgress_(((PYNetDownload *)self.network), totalBytesWritten, totalBytesExpectedToWrite);
     }
@@ -30,6 +38,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
 //下载任务完成,这个方法在下载完成时触发，它包含了已经完成下载任务得 Session Task,Download Task和一个指向临时下载文件得文件路径
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location{
     NSString *relativePath = [location relativePath];
+    if(self.network == nil) return;
     if (((PYNetDownload *)self.network).blockComplete) {
         ((PYNetDownload *)self.network).blockComplete(relativePath, nil, ((PYNetDownload *)self.network));
         [((PYNetDownload *)self.network) cancel];
@@ -42,6 +51,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error{
+    if(self.network == nil) return;
     if (error) {
         if (((PYNetDownload *)self.network).blockComplete) {
             ((PYNetDownload *)self.network).blockComplete(error, nil, ((PYNetDownload *)self.network));
