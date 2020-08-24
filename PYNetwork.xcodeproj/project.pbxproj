@@ -133,6 +133,9 @@
 		15DC8F3D2303B67C00682D21 /* PYNetwork+__ContenType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "PYNetwork+__ContenType.m"; sourceTree = "<group>"; };
 		15DC8F3F2303CE8700682D21 /* PYNetwork+__DataParse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PYNetwork+__DataParse.h"; sourceTree = "<group>"; };
 		15DC8F402303CE8700682D21 /* PYNetwork+__DataParse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "PYNetwork+__DataParse.m"; sourceTree = "<group>"; };
+		15EFB3B324ED62DB003BEAB0 /* PYAutolayoutUtilites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYAutolayoutUtilites.h; sourceTree = "<group>"; };
+		15EFB3B424ED62DC003BEAB0 /* UIView+PYAutolayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+PYAutolayout.h"; sourceTree = "<group>"; };
+		15EFB3B524ED62DC003BEAB0 /* PYConstraintMaker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PYConstraintMaker.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +168,9 @@
 		1502A425223A39C900F0787A /* PYUtile */ = {
 			isa = PBXGroup;
 			children = (
+				15EFB3B324ED62DB003BEAB0 /* PYAutolayoutUtilites.h */,
+				15EFB3B524ED62DC003BEAB0 /* PYConstraintMaker.h */,
+				15EFB3B424ED62DC003BEAB0 /* UIView+PYAutolayout.h */,
 				15A91E0E238B9D4500F5518B /* UIButton+PYExpand.h */,
 				15A91E0E238B9D4500F5517B /* NSArray+PYExpand.h */,
 				15A91E09238B9B7600F5517B /* pyutilea.h */,

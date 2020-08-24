@@ -85,9 +85,10 @@ kPNSNA NSString * certificationPassword;
  */
 -(BOOL) cancel;
 /**
- 取消请求和会话
+ 终止请求和会话
  */
--(void) interrupt;
+-(void) stop;
+-(void) interrupt PYRefreshDeprecated("Please use - [PYNetwork stop] instances");
 ///<=========================================
 
 -(nullable NSURLSession*) createDefaultSession;
@@ -139,5 +140,6 @@ kPNSNA NSString * certificationPassword;
  */
 +(nonnull NSData *) parseParamsToFormBody:(nullable NSDictionary *) params
                                  keySorts:(nullable NSArray<NSString *> *) keySorts;
+
 
 @end

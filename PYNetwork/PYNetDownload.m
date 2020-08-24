@@ -11,9 +11,12 @@
 #import "PYNetDownloadDelegate.h"
 #import <objc/runtime.h>
 
+@interface PYNetwork()
+kPNSNA PYNetworkDelegate * delegate;
+@end
+
 
 @interface PYNetDownload()
-kPNSNA PYNetDownloadDelegate * delegate;
 @property (nonatomic, copy, nullable) void (^_blockCancel_)(id _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) ;
 @property (nonatomic, copy, nullable) void (^ _blockDownloadProgress_) (PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes);
 @end
@@ -59,10 +62,10 @@ kPNSNA PYNetDownloadDelegate * delegate;
     return true;
 }
 
--(void) interrupt{
+-(void) stop{
     if(self._blockCancel_) self._blockCancel_(nil, nil, self);
     self._blockCancel_ = nil;
-    [super interrupt];
+    [super stop];
 }
 
 -(nullable NSURLSessionTask *) createDefaultSessionTask{

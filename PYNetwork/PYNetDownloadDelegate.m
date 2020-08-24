@@ -24,6 +24,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
 
 @implementation PYNetDownloadDelegate
 
+
 #pragma mark - NSURLSessionDownloadDelegate==>
 
 //这个方法用来跟踪下载数据并且根据进度刷新ProgressView

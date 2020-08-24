@@ -21,42 +21,33 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-    [[PYNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(PYNetworkReachabilityStatus status) {
-        NSLog(@"%ld", status);
-    }];
-    [[PYNetworkReachabilityManager sharedManager] startMonitoring];
+//    [[PYNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(PYNetworkReachabilityStatus status) {
+//        NSLog(@"%ld", status);
+//    }];
+//    [[PYNetworkReachabilityManager sharedManager] startMonitoring];
+//    
+//    static PYNetDownload * download;
+//    download = [PYNetDownload new];
+//    download.url = @"http://185.38.13.130//mp43/354441.mp4?st=4TAONEpXMkpDTUf3wnU8KQ&e=1580878232";
+//    [download setBlockDownloadProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {
+//        NSLog(@"%.2f%%", (double)currentBytes/(double)totalBytes * 100.);
+//    }];
+//    download.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
+//        NSLog(@"");
+//        
+//    };
+//    [download setBlockCancel:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) {
+//        NSLog(@"");
+//    }];
+//    [download resume];
     
-    static PYNetDownload * download;
-    download = [PYNetDownload new];
-    download.url = @"http://185.38.13.130//mp43/354441.mp4?st=4TAONEpXMkpDTUf3wnU8KQ&e=1580878232";
-    [download setBlockDownloadProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {
-        NSLog(@"%.2f%%", (double)currentBytes/(double)totalBytes * 100.);
-    }];
-    download.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
-        NSLog(@"");
-        
-    };
-    [download setBlockCancel:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) {
-        NSLog(@"");
-    }];
-    [download resume];
-    
-    static PYNetUpload * network;
-    network = [PYNetUpload new];
+    PYNetwork * network = [PYNetwork new];
     network.method = PYNET_HTTP_POST;
-    network.url = @"http://120.26.218.52:8088/aomi/tiktok/account/import/emailAccounts";
+    network.url = @"https://www.baidu.com";
     [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
-        NSLog(@"%@", [((NSData *)data) toDictionary]);
+        NSLog(@"%@", [((NSData *)data) toString]);
     }];
-    NSArray * emailTails=  @[@"@Gmail.com",@"@yahoo.com",@"@mail.ru",@"@Gmail.com",@"@yahoo.com",@"@Gmail.com",@"@yahoo.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@yahoo.com",@"@mail.ru",@"@Gmail.com",@"@yahoo.com",@"@Gmail.com",@"@yahoo.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com",@"@Gmail.com"];
-    NSMutableString * strs = [NSMutableString new];
-    for (NSString * emailTail in emailTails) {
-        int i = 10;
-        while (i-- > 0) {
-            [strs appendFormat:@"%@%@::%@::%@\n", [self.class randomName:(arc4random() % (4)) + 8], emailTail, kFORMAT(@"%@%@%@%@",[self.class randomName:8], [self.class randomUpchars:1], [self.class randomLowerchars:1], [self.class randomIntchars:1]),[self.class randomDateStr]];
-        }
-    }
-    [network resumeWithData:strs.toData fileName:@"data" contentType:@"text"];;
+    [network resume];
     return YES;
 }
 

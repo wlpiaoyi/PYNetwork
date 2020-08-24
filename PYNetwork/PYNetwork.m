@@ -79,7 +79,7 @@ kPNSNA PYNetworkDelegate * delegate;
 -(void) checkForInterrupt{
     outTimeInterval--;
     if(outTimeInterval <= 0){
-        [self interrupt];
+        [self stop];
     }
 }
 
@@ -132,6 +132,9 @@ kPNSNA PYNetworkDelegate * delegate;
 }
 
 -(void) interrupt{
+    [self stop];
+}
+-(void) stop{
     @synchronized(synrequest){
         self.delegate.network= nil;
         self.delegate = nil;
@@ -152,6 +155,7 @@ kPNSNA PYNetworkDelegate * delegate;
         [outterCheckTimer invalidate];
         outterCheckTimer = nil;
         if (!self.sessionTask) return false;
+        self.delegate.network= nil;
         [self.sessionTask cancel];
     }@finally{
         self.sessionTask = nil;
@@ -198,13 +202,13 @@ kPNSNA PYNetworkDelegate * delegate;
         }
         kStrong(self);
         if (self.state != PYNetworkStateCancel && self.state != PYNetworkStateInterrupt &&self.blockComplete) {
-            self.blockComplete(error ? error : data, response, self);
+            self.blockComplete(data ? data : error, response, self);
         }
         [self cancel];
     }];
 }
 -(void) dealloc{
-    [self interrupt];
+    [self stop];
     objc_setAssociatedObject([PYNetwork class], (__bridge const void * _Nonnull)(self), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 

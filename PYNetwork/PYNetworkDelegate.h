@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface PYNetworkDelegate:NSObject<NSURLSessionDelegate>
 
-kPNA PYNetwork * _Nullable network;
+kPNSNA PYNetwork * network;
 
 @end
 NS_ASSUME_NONNULL_END

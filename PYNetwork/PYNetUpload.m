@@ -9,6 +9,11 @@
 #import "PYNetUpload.h"
 #import "PYNetwork+__DataParse.h"
 #import <objc/runtime.h>
+#import "PYNetworkDelegate.h"
+
+@interface PYNetwork()
+kPNSNA PYNetworkDelegate * delegate;
+@end
 
 @interface PYNetUpload()<NSURLSessionDelegate>
 
@@ -60,6 +65,8 @@ PYPNSNA NSString * filePath;
 
 -(nullable NSURLSessionTask *) createDefaultSessionTask{
     if(![NSString isEnabled:self.url]) return nil;
+    self.delegate = [PYNetworkDelegate new];
+    self.delegate.network = self;
     if([NSString isEnabled:self.filePath]){
         NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
         void * targetPointer = (__bridge void *)(self);
@@ -70,10 +77,16 @@ PYPNSNA NSString * filePath;
                 return;
             }
             kStrong(self);
-            if (self.blockComplete) {
-                self.blockComplete(error ? error : data, nil, self);
-                [self cancel];
+            if(error){
+                if (self.blockCancel) {
+                    self.blockCancel(data, error, self);
+                }
+            }else{
+                if (self.blockComplete) {
+                    self.blockComplete(data, response, self);
+                }
             }
+            [self cancel];
         }];
     }else if(self.updateData && [NSString isEnabled:self.fileName] && [NSString isEnabled:self.contentType]){
         NSMutableDictionary * mHeaders = self.heads ? [self.heads mutableCopy] : [NSMutableDictionary new];
@@ -93,8 +106,14 @@ PYPNSNA NSString * filePath;
                 return;
             }
             kStrong(self);
-            if (self.blockComplete) {
-                self.blockComplete(error ? error : data, nil, self);
+            if(error){
+                if (self.blockCancel) {
+                    self.blockCancel(data, error, self);
+                }
+            }else{
+                if (self.blockComplete) {
+                    self.blockComplete(data, response, self);
+                }
             }
             [self cancel];
         }];

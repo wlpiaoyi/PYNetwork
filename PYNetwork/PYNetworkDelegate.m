@@ -10,11 +10,14 @@
 
 
 @interface PYNetwork(){
+    
 @private
     id synrequest;
     NSTimer * outterCheckTimer;
+    
 @public
     NSTimeInterval outTimeInterval;
+    
 }
 kPNSNA PYNetworkDelegate * delegate;
 @end
