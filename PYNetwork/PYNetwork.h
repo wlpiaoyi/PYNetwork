@@ -88,7 +88,7 @@ kPNSNA NSString * certificationPassword;
  终止请求和会话
  */
 -(void) stop;
--(void) interrupt PYRefreshDeprecated("Please use - [PYNetwork stop] instances");
+-(void) interrupt API_DEPRECATED_WITH_REPLACEMENT("stop", ios(1.0, 2.0));
 ///<=========================================
 
 -(nullable NSURLSession*) createDefaultSession;
