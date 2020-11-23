@@ -10,11 +10,6 @@
 #import "PYNetDownload.h"
 
 
-@interface PYNetwork(){
-@public
-    NSTimeInterval outTimeInterval;
-}
-@end
 
 @interface PYNetDownload()
 kPNSNA PYNetDownloadDelegate * delegate;
@@ -30,7 +25,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
 //这个方法用来跟踪下载数据并且根据进度刷新ProgressView
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite{
     if(self.network == nil) return;
-    self.network->outTimeInterval = self.network.outTime;
+    self.network.outTime = self.network.outTime;
     if (((PYNetDownload *)self.network)._blockDownloadProgress_) {
         ((PYNetDownload *)self.network)._blockDownloadProgress_(((PYNetDownload *)self.network), totalBytesWritten, totalBytesExpectedToWrite);
     }
@@ -40,6 +35,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location{
     NSString *relativePath = [location relativePath];
     if(self.network == nil) return;
+    [self.network setValue:@(PYNetworkStateCompleted) forKey:@"state"];
     if (((PYNetDownload *)self.network).blockComplete) {
         ((PYNetDownload *)self.network).blockComplete(relativePath, nil, ((PYNetDownload *)self.network));
         [((PYNetDownload *)self.network) cancel];

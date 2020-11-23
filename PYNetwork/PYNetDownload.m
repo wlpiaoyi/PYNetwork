@@ -46,17 +46,15 @@ kPNSNA PYNetworkDelegate * delegate;
 ///<====================================
 
 -(BOOL) cancel{
+    [super cancel];
     @synchronized(self) {
-        if (!self.sessionTask) {
-            [super cancel];
-            return false;
-        }
+        if(self.state == PYNetworkStateCancel ) return NO;
+        if(self.state == PYNetworkStateResume ) return NO;
         //必须等到cancel block回调时才能回收
         [(NSURLSessionDownloadTask*)self.sessionTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-            if (self.state != PYNetworkStateCancel && self._blockCancel_) {
+            if (self.state != PYNetworkStateCompleted && self._blockCancel_) {
                 self._blockCancel_(resumeData, nil, self);
             }
-            [super cancel];
         }];
     }
     return true;

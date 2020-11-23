@@ -19,7 +19,7 @@
 
 //static NSInteger PYNetworkActivityIndicatorIndex = 0;
 
-NSTimeInterval PYNET_OUTTIME = 10;
+NSTimeInterval PYNET_OUTTIME = 5;
 
 NSString *  PYNET_DATE_PATTERN = @"yyyy-MM-dd HH:mm:ss";
 
@@ -76,6 +76,11 @@ kPNSNA PYNetworkDelegate * delegate;
     return self;
 }
 
+-(void) setOutTime:(NSTimeInterval)outTime{
+    _outTime = outTime;
+    outTimeInterval = outTime;
+}
+
 -(void) checkForInterrupt{
     outTimeInterval--;
     if(outTimeInterval <= 0){
@@ -84,11 +89,10 @@ kPNSNA PYNetworkDelegate * delegate;
 }
 
 -(BOOL) resume{
-    outTimeInterval = self.outTime;
     @synchronized(synrequest){
+        self.outTime = self.outTime;
         outterCheckTimer = [NSTimer timerWithTimeInterval:1 target:self selector:@selector(checkForInterrupt) userInfo:nil repeats:YES];
         [[NSRunLoop currentRunLoop] addTimer:outterCheckTimer forMode:NSRunLoopCommonModes];
-        [outterCheckTimer fire];
         if(self.state == PYNetworkStateResume) return false;
         if(self.session == nil) _session = [self createDefaultSession];
         if(self.state == PYNetworkStateResume) return false;
@@ -122,8 +126,9 @@ kPNSNA PYNetworkDelegate * delegate;
 
 -(BOOL) cancel{
     @synchronized(synrequest){
-        if(self.state != PYNetworkStateResume) return false;
-        _state = PYNetworkStateCancel;
+        if(self.state == PYNetworkStateCancel ) return NO;
+        if(self.state == PYNetworkStateResume ) return NO;
+        if(_state != PYNetworkStateCompleted) _state = PYNetworkStateCancel;
         if([self __cancel]){
             [PYNetwork removeNetworkActivityIndicatorVisibel];
             return true;
@@ -141,7 +146,7 @@ kPNSNA PYNetworkDelegate * delegate;
         if(_state == PYNetworkStateResume){
             [PYNetwork removeNetworkActivityIndicatorVisibel];
         }
-        _state = PYNetworkStateInterrupt;
+        if(_state != PYNetworkStateCompleted) _state = PYNetworkStateInterrupt;
         [self __cancel];
         if(self.session){
             [self.session invalidateAndCancel];
@@ -155,6 +160,7 @@ kPNSNA PYNetworkDelegate * delegate;
         [outterCheckTimer invalidate];
         outterCheckTimer = nil;
         if (!self.sessionTask) return false;
+        if(_state != PYNetworkStateCompleted && self.blockComplete) self.blockComplete(nil, nil, self);
         self.delegate.network= nil;
         [self.sessionTask cancel];
     }@finally{
@@ -203,6 +209,7 @@ kPNSNA PYNetworkDelegate * delegate;
         kStrong(self);
         if (self.state != PYNetworkStateCancel && self.state != PYNetworkStateInterrupt &&self.blockComplete) {
             self.blockComplete(data ? data : error, response, self);
+            self->_state = PYNetworkStateCompleted;
         }
         [self cancel];
     }];

@@ -43,7 +43,7 @@
     
     PYNetwork * network = [PYNetwork new];
     network.method = PYNET_HTTP_POST;
-    network.url = @"https://www.baidu.com";
+    network.url = @"https://www.google.com";
     [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
         NSLog(@"%@", [((NSData *)data) toString]);
     }];

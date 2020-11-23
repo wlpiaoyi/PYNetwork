@@ -13,6 +13,7 @@ typedef enum _PYNetworkState {
     PYNetworkStateUnkwon = 0,
     PYNetworkStateResume,
     PYNetworkStateSuspend,
+    PYNetworkStateCompleted,
     PYNetworkStateCancel,
     PYNetworkStateInterrupt
 } PYNetworkState;

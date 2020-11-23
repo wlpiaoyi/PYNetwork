@@ -14,10 +14,6 @@
 @private
     id synrequest;
     NSTimer * outterCheckTimer;
-    
-@public
-    NSTimeInterval outTimeInterval;
-    
 }
 kPNSNA PYNetworkDelegate * delegate;
 @end
@@ -97,7 +93,7 @@ kPNSNA NSData * bodyData;
    didSendBodyData:(int64_t)bytesSent
     totalBytesSent:(int64_t)totalBytesSent
 totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend{
-    self.network->outTimeInterval = self.network.outTime;
+    self.network.outTime = self.network.outTime;
     if(self.network.blockSendProgress){
         self.network.blockSendProgress(self.network, bytesSent, totalBytesSent);
     }
