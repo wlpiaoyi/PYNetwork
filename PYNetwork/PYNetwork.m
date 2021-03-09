@@ -126,31 +126,44 @@ kPNSNA PYNetworkDelegate * delegate;
 
 -(BOOL) cancel{
     @synchronized(synrequest){
+        if(self.state == PYNetworkStateCompleted ) return NO;
+        if(self.state == PYNetworkStateInterrupt ) return NO;
         if(self.state == PYNetworkStateCancel ) return NO;
-        if(self.state == PYNetworkStateResume ) return NO;
-        if(_state != PYNetworkStateCompleted) _state = PYNetworkStateCancel;
-        if([self __cancel]){
+        @try {
+            if(_state == PYNetworkStateCompleting) _state = PYNetworkStateCompleted;
             [PYNetwork removeNetworkActivityIndicatorVisibel];
-            return true;
-        }else return false;
+            if([self __cancel]){
+                return true;
+            }else return false;
+        } @finally {
+            _state = PYNetworkStateCancel;
+            self.delegate = nil;
+        }
     }
 }
 
 -(void) interrupt{
     [self stop];
 }
+
 -(void) stop{
     @synchronized(synrequest){
-        self.delegate.network= nil;
-        self.delegate = nil;
-        if(_state == PYNetworkStateResume){
-            [PYNetwork removeNetworkActivityIndicatorVisibel];
-        }
-        if(_state != PYNetworkStateCompleted) _state = PYNetworkStateInterrupt;
-        [self __cancel];
-        if(self.session){
-            [self.session invalidateAndCancel];
-            _session = nil;
+        if(self.state == PYNetworkStateCompleted ) return;
+        if(self.state == PYNetworkStateInterrupt ) return;
+        if(self.state == PYNetworkStateCancel ) return;
+        @try {
+            if(_state == PYNetworkStateResume){
+                [PYNetwork removeNetworkActivityIndicatorVisibel];
+            }
+            if(_state != PYNetworkStateCompleted) _state = PYNetworkStateInterrupt;
+            if(self.session){
+                [self.session invalidateAndCancel];
+                _session = nil;
+            }
+            [self __cancel];
+        } @finally {
+//            self.delegate.network= nil;
+            self.delegate = nil;
         }
     }
 }
@@ -161,7 +174,6 @@ kPNSNA PYNetworkDelegate * delegate;
         outterCheckTimer = nil;
         if (!self.sessionTask) return false;
         if(_state != PYNetworkStateCompleted && self.blockComplete) self.blockComplete(nil, nil, self);
-        self.delegate.network= nil;
         [self.sessionTask cancel];
     }@finally{
         self.sessionTask = nil;
@@ -207,9 +219,11 @@ kPNSNA PYNetworkDelegate * delegate;
             return;
         }
         kStrong(self);
-        if (self.state != PYNetworkStateCancel && self.state != PYNetworkStateInterrupt &&self.blockComplete) {
+        if(self.state == PYNetworkStateCancel) return;
+        if(self.state == PYNetworkStateInterrupt) return;
+        if (self.blockComplete) {
             self.blockComplete(data ? data : error, response, self);
-            self->_state = PYNetworkStateCompleted;
+            self->_state = PYNetworkStateCompleting;
         }
         [self cancel];
     }];

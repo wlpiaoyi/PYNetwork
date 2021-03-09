@@ -21,33 +21,38 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-//    [[PYNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(PYNetworkReachabilityStatus status) {
-//        NSLog(@"%ld", status);
-//    }];
-//    [[PYNetworkReachabilityManager sharedManager] startMonitoring];
-//    
-//    static PYNetDownload * download;
-//    download = [PYNetDownload new];
-//    download.url = @"http://185.38.13.130//mp43/354441.mp4?st=4TAONEpXMkpDTUf3wnU8KQ&e=1580878232";
-//    [download setBlockDownloadProgress:^(PYNetDownload * _Nonnull target, int64_t currentBytes, int64_t totalBytes) {
-//        NSLog(@"%.2f%%", (double)currentBytes/(double)totalBytes * 100.);
-//    }];
-//    download.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
-//        NSLog(@"");
-//        
-//    };
-//    [download setBlockCancel:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetDownload * _Nonnull target) {
-//        NSLog(@"");
-//    }];
-//    [download resume];
+    PYNetUpload * upload = [PYNetUpload new];
+    upload.url = @"http://www.baidu.com/aa";
+    upload.params = @{@"key":@"value",@"key1":@"value2"};
+    upload.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
+        NSLog(@"");
+    };
+    NSData * data = [@"aaa" toData];
+    [upload resumeWithData:data fileName:@"photp.jpg" contentType:@"jpg"];
+//    [upload resume];
     
-    PYNetwork * network = [PYNetwork new];
-    network.method = PYNET_HTTP_POST;
-    network.url = @"https://www.google.com";
-    [network setBlockComplete:^(id _Nullable data,NSURLResponse * _Nullable response, PYNetwork * _Nonnull target){
-        NSLog(@"%@", [((NSData *)data) toString]);
-    }];
-    [network resume];
+//    PYNetwork * network = [PYNetwork new];
+//    network.heads = @{@"Content-Type":@"text/xml;charset=utf-8",
+//                      @"Cache-Control":@"no-cache",
+//                      @"charset":@"UTF-8"};
+//    network.method = PYNET_HTTP_POST;
+//
+//    PYXmlDocument * xml = [PYXmlDocument instanceWithXmlString:@"<v:Envelope xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:d=\"http://www.w3.org/2001/XMLSchema\" xmlns:c=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:v=\"http://schemas.xmlsoap.org/soap/envelope/\"><v:Header /><v:Body><n0:searchBook id=\"o0\" c:root=\"1\" xmlns:n0=\"http://service/\"><keyword i:type=\"d:string\"></keyword><type i:type=\"d:int\">0</type><sortByYear i:type=\"d:int\">0</sortByYear><startIndex i:type=\"d:int\">1</startIndex><endIndex i:type=\"d:int\">10</endIndex></n0:searchBook></v:Body></v:Envelope>"];
+//    NSString * xmlStr = [xml.rootElement stringValue];
+//    network.params = xmlStr;
+//
+//
+//    network.url = @"http://zysc.souips.com/zltreader/service/readerService?wsdl";
+//    network.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
+//        PYXmlDocument * xml = nil;
+//        if([data isKindOfClass:[NSData class]]){
+//            NSString * args = [((NSData *) data) toString];
+//            xml = [PYXmlDocument instanceWithXmlString:args];
+//        }
+//        [xml stringValue];
+//        NSLog(@"");
+//    };
+//    [network resume];
     return YES;
 }
 

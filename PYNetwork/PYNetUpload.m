@@ -115,7 +115,6 @@ PYPNSNA NSString * filePath;
                     self.blockComplete(data, response, self);
                 }
             }
-            [self cancel];
         }];
     }
     return nil;

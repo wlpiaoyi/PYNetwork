@@ -53,16 +53,19 @@
         NSMutableString * mString = [NSMutableString new];
         NSString * uuid = [contentType substringFromIndex:29];
         [mString appendFormat:@"--%@\r\n",uuid];
-        [mString appendFormat:@"Content-Disposition:form-data; name=\"file\"; filename=\"%@\"\r\nContent-Type:%@\r\n\r\n", params[@"fileName"], params[@"contentType"]];
+        [mString appendFormat:@"Content-Disposition: form-data; name=\"file\"; filename=\"%@\"\r\nContent-Type:%@\r\n\r\n", params[@"fileName"], params[@"contentType"]];
         NSMutableData * mdata = [[mString toData] mutableCopy];
         [mdata appendData:params[uuid]];
-        [mdata appendData:[[NSString stringWithFormat:@"\r\n--%@",uuid] toData]];
+//        [mdata appendData:[[NSString stringWithFormat:@"\r\n--%@",uuid] toData]];
         mString = [NSMutableString new];
-        for(NSString * key in ((NSDictionary *)params).allKeys){
+        NSArray * allKeys = ((NSDictionary *)params).allKeys;
+        for(NSString * key in allKeys){
             if([key isEqual:@"fileName"] || [key isEqual:@"contentType"] || [key isEqual:uuid]) continue;
-            [mString appendFormat:@"\r\nContent-Disposition:form-data; name=\"%@\"\r\n\r\n", key];
-            [mString appendFormat:@"%@\r\n--%@", params[key], uuid];
+            [mString appendFormat:@"\r\n--%@", uuid];
+            [mString appendFormat:@"\r\nContent-Disposition: form-data; name=\"%@\"\r\n\r\n", key];
+            [mString appendFormat:@"%@", params[key]];
         }
+        [mString appendFormat:@"\r\n--%@--\r\n", uuid];
         [mdata appendData:[mString toData]];
         return mdata;
     }

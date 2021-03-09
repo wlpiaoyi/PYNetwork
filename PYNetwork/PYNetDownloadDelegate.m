@@ -35,7 +35,7 @@ kPNSNA PYNetDownloadDelegate * delegate;
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location{
     NSString *relativePath = [location relativePath];
     if(self.network == nil) return;
-    [self.network setValue:@(PYNetworkStateCompleted) forKey:@"state"];
+    [self.network setValue:@(PYNetworkStateCompleting) forKey:@"state"];
     if (((PYNetDownload *)self.network).blockComplete) {
         ((PYNetDownload *)self.network).blockComplete(relativePath, nil, ((PYNetDownload *)self.network));
         [((PYNetDownload *)self.network) cancel];

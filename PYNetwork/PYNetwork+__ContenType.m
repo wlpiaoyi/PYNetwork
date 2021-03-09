@@ -11,7 +11,7 @@
 NSString * PYNetworkDefaultCharset = @"UTF-8";
 NSString * PYNetworkXWWWFormContentType = @"application/x-www-form-urlencoded";
 NSString * PYNetworkJsonContentType = @"application/json";
-NSString * PYNetworkXmlContentType = @"application/xml";
+NSString * PYNetworkXmlContentType = @"text/xml";
 NSString * PYNetworkMutipartFormContentType = @"multipart/form-data";
 
 @implementation PYNetwork(__ContenType)
