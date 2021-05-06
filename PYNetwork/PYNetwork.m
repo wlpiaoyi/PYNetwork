@@ -125,6 +125,7 @@ kPNSNA PYNetworkDelegate * delegate;
 }
 
 -(BOOL) cancel{
+    
     @synchronized(synrequest){
         if(self.state == PYNetworkStateCompleted ) return NO;
         if(self.state == PYNetworkStateInterrupt ) return NO;
@@ -132,9 +133,11 @@ kPNSNA PYNetworkDelegate * delegate;
         @try {
             if(_state == PYNetworkStateCompleting) _state = PYNetworkStateCompleted;
             [PYNetwork removeNetworkActivityIndicatorVisibel];
-            if([self __cancel]){
-                return true;
-            }else return false;
+            if(self.session){
+                [self.session invalidateAndCancel];
+                _session = nil;
+            }
+            return [self __cancel];
         } @finally {
             _state = PYNetworkStateCancel;
             self.delegate = nil;
@@ -147,24 +150,11 @@ kPNSNA PYNetworkDelegate * delegate;
 }
 
 -(void) stop{
-    @synchronized(synrequest){
-        if(self.state == PYNetworkStateCompleted ) return;
-        if(self.state == PYNetworkStateInterrupt ) return;
-        if(self.state == PYNetworkStateCancel ) return;
-        @try {
-            if(_state == PYNetworkStateResume){
-                [PYNetwork removeNetworkActivityIndicatorVisibel];
-            }
-            if(_state != PYNetworkStateCompleted) _state = PYNetworkStateInterrupt;
-            if(self.session){
-                [self.session invalidateAndCancel];
-                _session = nil;
-            }
-            [self __cancel];
-        } @finally {
-//            self.delegate.network= nil;
-            self.delegate = nil;
-        }
+    @try {
+        [self cancel];
+        if(_state != PYNetworkStateCompleted) _state = PYNetworkStateInterrupt;
+    } @finally {
+        self.delegate = nil;
     }
 }
 

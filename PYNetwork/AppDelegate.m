@@ -21,14 +21,14 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-    PYNetUpload * upload = [PYNetUpload new];
-    upload.url = @"http://www.baidu.com/aa";
-    upload.params = @{@"key":@"value",@"key1":@"value2"};
-    upload.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
-        NSLog(@"");
-    };
-    NSData * data = [@"aaa" toData];
-    [upload resumeWithData:data fileName:@"photp.jpg" contentType:@"jpg"];
+//    PYNetUpload * upload = [PYNetUpload new];
+//    upload.url = @"http://www.baidu.com/aa";
+//    upload.params = @{@"key":@"value",@"key1":@"value2"};
+//    upload.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
+//        NSLog(@"");
+//    };
+//    NSData * data = [@"aaa" toData];
+//    [upload resumeWithData:data fileName:@"photp.jpg" contentType:@"jpg"];
 //    [upload resume];
     
 //    PYNetwork * network = [PYNetwork new];

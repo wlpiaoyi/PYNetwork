@@ -19,6 +19,15 @@ typedef enum _PYNetworkState {
     PYNetworkStateInterrupt
 } PYNetworkState;
 
+@class PYNetwork;
+
+//@protocol PYNetoworkDelegate <NSObject>
+//
+//-(void) receiveChallengeWithNetwork:(nullable PYNetwork *) network data:(nullable id) data;
+//-(void) sendProgbressWithNetwork:(nullable PYNetwork *) network currentBytes:(int64_t) currentBytes totalBytes:(int64_t) totalBytes;
+//-(void) completeWithNetwork:(nullable PYNetwork *) network data:(nullable id) data response:(nullable NSURLResponse *) response;
+//
+//@end
 
 extern NSTimeInterval PYNET_OUTTIME;
 
@@ -34,7 +43,6 @@ extern NSString * _Nonnull PYNET_HTTP_PUT ;
 extern NSString * _Nonnull PYNET_HTTP_DELETE;
 ///<==
 
-@class PYNetwork;
 
 @interface PYNetwork : NSObject
 
@@ -62,6 +70,7 @@ kPNSNA NSDictionary<NSString *, NSString *> * heads;//头文件
 kPNCNA void (^blockSendProgress) (PYNetwork * _Nonnull target, int64_t currentBytes, int64_t totalBytes);
 kPNCNA BOOL (^blockReceiveChallenge)(id _Nullable data, PYNetwork * _Nonnull target) ;
 kPNCNA void (^blockComplete)(id _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target);
+
 
 /**
  ssl证书账号密码

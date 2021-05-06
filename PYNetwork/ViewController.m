@@ -26,20 +26,20 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    PYXmlElement * xml = [[PYXmlElement alloc] init];
-//    xml.elementName = @"elementName";
-//    xml.attributes = @{@"attribute1":@"value"};
-//    xml.string = @"string value";
-//    static PYNetwork * nw;
-//    nw = [PYNetwork new];
-//    nw.method = PYNET_HTTP_POST;//67765498860
-//    nw.url = @"http://ugc.wxcitycq.com:8021/ugc_app/upload/savevideo";
-//    [nw setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
-//        NSLog(@"===================================================================");
-//        NSLog(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
-//        NSLog(@"===================================================================");
-//    }];
-//    [nw resume];
+    PYXmlElement * xml = [[PYXmlElement alloc] init];
+    xml.elementName = @"elementName";
+    xml.attributes = @{@"attribute1":@"value"};
+    xml.string = @"string value";
+    PYNetwork * nw;
+    nw = [PYNetwork new];
+    nw.method = PYNET_HTTP_POST;//67765498860
+    nw.url = @"http://ugc.wxcitycq.com:8021/ugc_app/upload/savevideo";
+    [nw setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
+        NSLog(@"===================================================================");
+        NSLog(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
+        NSLog(@"===================================================================");
+    }];
+    [nw resume];
 }
 
 
