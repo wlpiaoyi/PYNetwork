@@ -300,7 +300,6 @@ kPNSNA PYNetworkDelegate * delegate;
         else if([params isKindOfClass:[NSString class]])
             return [((NSString *) params) toData];
     }
-    
     else if([PYNetwork isContentTypeForJson:contentType])
         return [self parseParamsToData:params];
     

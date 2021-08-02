@@ -53,14 +53,15 @@
         NSMutableString * mString = [NSMutableString new];
         NSString * uuid = [contentType substringFromIndex:29];
         [mString appendFormat:@"--%@\r\n",uuid];
-        [mString appendFormat:@"Content-Disposition: form-data; name=\"file\"; filename=\"%@\"\r\nContent-Type:%@\r\n\r\n", params[@"fileName"], params[@"contentType"]];
+        NSString * attachmentName = params[@"py_attachmentName"] ? : @"file";
+        [mString appendFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\nContent-Type:%@\r\n\r\n", attachmentName, params[@"fileName"], params[@"contentType"]];
         NSMutableData * mdata = [[mString toData] mutableCopy];
         [mdata appendData:params[uuid]];
 //        [mdata appendData:[[NSString stringWithFormat:@"\r\n--%@",uuid] toData]];
         mString = [NSMutableString new];
         NSArray * allKeys = ((NSDictionary *)params).allKeys;
         for(NSString * key in allKeys){
-            if([key isEqual:@"fileName"] || [key isEqual:@"contentType"] || [key isEqual:uuid]) continue;
+            if([key isEqual:@"fileName"] || [key isEqual:@"contentType"] || [key isEqual:uuid] || [key isEqual:attachmentName]) continue;
             [mString appendFormat:@"\r\n--%@", uuid];
             [mString appendFormat:@"\r\nContent-Disposition: form-data; name=\"%@\"\r\n\r\n", key];
             [mString appendFormat:@"%@", params[key]];
