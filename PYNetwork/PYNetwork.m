@@ -193,11 +193,11 @@ kPNSNA PYNetworkDelegate * delegate;
         }else{
             url = kFORMAT(@"%@?%@",self.url, urlParams);
         }
-        request = [PYNetwork createRequestWithUrlString:url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
+        request = [self.class createRequestWithUrlString:url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
         
     }else{
         NSData * pData = [PYNetwork parseParamsToHttpBody:self.params contentType:self.heads[@"Content-Type"] keySorts:self.keySorts];
-        request = [PYNetwork createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
+        request = [self.class createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:pData outTime:self.outTime];
     }
     
     if(!self.session) return nil;

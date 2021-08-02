@@ -68,7 +68,7 @@ PYPNSNA NSString * filePath;
     self.delegate = [PYNetworkDelegate new];
     self.delegate.network = self;
     if([NSString isEnabled:self.filePath]){
-        NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
+        NSURLRequest * request = [self.class createRequestWithUrlString:self.url httpMethod:self.method heads:self.heads params:nil outTime:self.outTime];
         void * targetPointer = (__bridge void *)(self);
         kAssign(self);
         return [self.session uploadTaskWithRequest:request fromFile: [NSURL fileURLWithPath:self.filePath] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -92,7 +92,7 @@ PYPNSNA NSString * filePath;
         NSMutableDictionary * mHeaders = self.heads ? [self.heads mutableCopy] : [NSMutableDictionary new];
         NSString *uuid = [PYNetUpload uuid];
         [mHeaders setDictionary:@{@"Content-Type":[NSString stringWithFormat:@"multipart/form-data;boundary=%@",uuid]}];
-        NSURLRequest * request = [PYNetUpload createRequestWithUrlString:self.url httpMethod:self.method heads:mHeaders params:nil outTime:self.outTime];
+        NSURLRequest * request = [self.class createRequestWithUrlString:self.url httpMethod:self.method heads:mHeaders params:nil outTime:self.outTime];
         NSMutableDictionary * mParams = self.params ? [self.params mutableCopy] : [NSMutableDictionary new];
         [mParams setObject:self.fileName forKey:@"fileName"];
         [mParams setObject:self.contentType forKey:@"contentType"];
