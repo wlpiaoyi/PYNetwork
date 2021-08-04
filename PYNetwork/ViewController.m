@@ -9,10 +9,13 @@
 #import "ViewController.h"
 #import "PYNetwork.h"
 
-NSString * qkd_uuid = @"1B00A734-A204-4F5F-A776-22687FC92801";
-NSString * qkd_client_id = @"c0a8005808ff0012d3d8";
-NSString * qkd_token = @"lDZq1/4ge6cx7pPLXUNBWyMUISwHSb1Xt0MiunttKaAwnx08mK+i4COeB9TTfz42tDY79/VpIqAQOylImOUKjdWK/ElEpM+2ZhYrzvEFkBhOt4C8wPzJbd1VKKDN639MVcL0fQ0sE6GaMqpdOaxV5OmrimhW7Qc4au+2W5WPxSe0CHc6rl4eo/DjfpI3g3m2";
-NSString * qkd_cookie = @"think_language=zh-cn; PHPSESSID=ujis7aujm3c107tbcphjhrs8ef";
+NSDictionary * qkd_dict;
+
+NSString * qkd_uuid;
+NSString * qkd_token;
+
+NSString * qkd_client_id;
+NSString * qkd_cookie;
 
 @interface PYFormMutableDictionary<KeyType, ObjectType> : NSMutableDictionary<KeyType, ObjectType>
 
@@ -40,6 +43,32 @@ kPNSNA NSDictionary * headers;
 @end
 
 @implementation ViewController
+
++(void) load{
+//    qkd_uuid = @"1B00A734-A204-4F5F-A776-22687FC92801";
+    qkd_uuid = @"9603EEE8-09CE-49E0-B545-7A0ED6A062A3";
+//    qkd_uuid = @"90E7900C-A6E1-4215-BF60-F5758F9118BF";
+    qkd_token = @"lDZq1/4ge6cMD7z4SnqvumYDr1z18deHNjy7e+B/GnIHDCyR7gfa3HiSisb0dlRq4CoIxcpbAEZl0M/Lo3ZKOgPay04EB1hrQwuFMCq/3X9w96tnK19l2zilAHBhyzxauxPAHJT2HavmCC7ziYN9tPdsvFGyQ5bcYbGnVcYouCA1BYK4cB7yKadSRUoQlysX";
+    qkd_dict = @{
+        @"1B00A734-A204-4F5F-A776-22687FC92801":@{
+                @"qkd_client_id": @"c0a8005808fe0015021d",
+                @"qkd_cookie": @"think_language=zh-cn; PHPSESSID=ujis7aujm3c107tbcphjhrs8ef",
+        },
+        @"9603EEE8-09CE-49E0-B545-7A0ED6A062A3":@{
+                @"qkd_client_id": @"c0a8005808ff001513af",
+                @"qkd_cookie": @"think_language=zh-cn; PHPSESSID=6srm0oee1dd49ub7it1qt55bpg",
+                
+        },
+        @"90E7900C-A6E1-4215-BF60-F5758F9118BF":@{
+                @"qkd_client_id": @"c0a8005808fc00146383",
+                @"qkd_cookie": @"think_language=zh-cn; PHPSESSID=7jekk1ef931rr5i32all771fna",
+                
+        }
+    };
+    NSDictionary * dict = qkd_dict[qkd_uuid];
+    qkd_client_id = dict[@"qkd_client_id"];
+    qkd_cookie = dict[@"qkd_cookie"];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -80,12 +109,16 @@ kPNSNA NSDictionary * headers;
         self.view.userInteractionEnabled = YES;
         self.label1.text = kFORMAT(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
         NSDictionary * result = [data toDictionary];
+        self.label1.text = result[@"msg"] ? : kFORMAT(@"错误:%@", result);
+        if(result && [result isKindOfClass:[NSDictionary class]]){
+        }else return;
+        if([result[@"result"] isKindOfClass:[NSDictionary class]] && result[@"result"][@"token"]){
+        }else return;
         NSString * token = result[@"result"][@"token"];
         qkd_token = token;
         threadJoinGlobal(^{
             sleep(1);
             threadJoinMain(^{
-                self.label1.text = result[@"msg"];
                 [self initTocken];
             });
         });
@@ -108,12 +141,12 @@ kPNSNA NSDictionary * headers;
         NSLog(@"===================================================================");
         self.label1.text = kFORMAT(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
         NSDictionary * result = [data toDictionary];
-//        NSString * token = result[@"result"][@"token"];
-//        qkd_token = token;
+        self.label1.text = result[@"msg"] ? : kFORMAT(@"错误:%@", result);
+        if(result && [result isKindOfClass:[NSDictionary class]]){
+        }else return;
         threadJoinGlobal(^{
             sleep(1);
             threadJoinMain(^{
-                self.label1.text = result[@"msg"];
                 if(result.count > 1) [self putBind];
             });
         });
@@ -138,12 +171,14 @@ kPNSNA NSDictionary * headers;
         NSLog(@"===================================================================");
         self.label1.text = kFORMAT(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
         NSDictionary * result = [data toDictionary];
-//        NSString * token = result[@"result"][@"token"];
-//        qkd_token = token;
+        self.label1.text = result[@"msg"] ? : kFORMAT(@"错误:%@", result);
+        if(result && [result isKindOfClass:[NSDictionary class]]){
+        }else return;
+        if([result[@"result"] isKindOfClass:[NSDictionary class]] && result[@"result"][@"token"]){
+        }else return;
         threadJoinGlobal(^{
             sleep(1);
             threadJoinMain(^{
-                self.label1.text = result[@"msg"];
                 if(result.count > 1) [self queryList];
             });
             
@@ -168,10 +203,14 @@ kPNSNA NSDictionary * headers;
     [nw setBlockComplete:^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
         self.view.alpha = 1;
         self.view.userInteractionEnabled = YES;
-        NSLog(@"===================================================================");
-        NSLog(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
         NSDictionary * result = [data toDictionary];
-        NSLog(@"===================================================================");
+
+        self.label1.text = result[@"msg"] ? : kFORMAT(@"错误:%@", result);
+        if(result && [result isKindOfClass:[NSDictionary class]]){
+        }else return;
+        if([result[@"result"] isKindOfClass:[NSDictionary class]] && result[@"result"][@"list"]){
+        }else return;
+        
         self.result = [NSMutableArray new];
         for (NSDictionary * dict in result[@"result"][@"list"]) {
             NSNumber * is_join_m = dict[@"is_join_m"];
@@ -208,7 +247,12 @@ kPNSNA NSDictionary * headers;
         NSLog(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
         NSDictionary * result = [data toDictionary];
         NSLog(@"===================================================================");
-        self.label1.text = result[@"msg"];
+        self.label1.text = result[@"msg"] ? : kFORMAT(@"错误:%@", result);
+        if(result && [result isKindOfClass:[NSDictionary class]]){
+        }else return;
+        if([result[@"result"] isKindOfClass:[NSDictionary class]]
+           && result[@"result"][@"cart_id"]){
+        }else return;
         [self getOrderConfirmPage:result[@"result"][@"cart_id"]];
     }];
     [nw resume];
@@ -235,7 +279,11 @@ kPNSNA NSDictionary * headers;
         NSLog(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
         NSDictionary * result = [data toDictionary];
         NSLog(@"===================================================================");
-        self.label1.text = result[@"msg"];
+        self.label1.text = result[@"msg"] ? : kFORMAT(@"错误:%@", result);
+        if(result && [result isKindOfClass:[NSDictionary class]]){
+        }else return;
+        if([result[@"result"] isKindOfClass:[NSDictionary class]] && result[@"result"]){
+        }else return;
         [self putOrder:result[@"result"]];
     }];
     [nw resume];
@@ -260,7 +308,7 @@ kPNSNA NSDictionary * headers;
         NSLog(@"%@",[data isKindOfClass:[NSData class]] ? [data toString] : [data description]);
         NSDictionary * result = [data toDictionary];
         NSLog(@"===================================================================");
-        self.label1.text = result[@"msg"];
+        self.label1.text = result[@"msg"] ? : kFORMAT(@"错误:%@", result);
         threadJoinGlobal(^{
 //            sleep(1);
 //            if(self.result.count){
