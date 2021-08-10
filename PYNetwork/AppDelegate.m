@@ -12,6 +12,43 @@
 #import "NSData+PYExpand.h"
 #import "PYNetworkReachabilityManager.h"
 
+//2021-08-04 12:58:07.366835+0800 PYNetwork[31285:7400480] i
+//2021-08-04 12:58:07.367032+0800 PYNetwork[31285:7400480] I
+//2021-08-04 12:58:07.367132+0800 PYNetwork[31285:7400480] q
+//2021-08-04 12:58:07.367227+0800 PYNetwork[31285:7400480] Q
+//2021-08-04 12:58:07.367320+0800 PYNetwork[31285:7400480] f
+//2021-08-04 12:58:07.367409+0800 PYNetwork[31285:7400480] d
+//2021-08-04 12:58:07.367496+0800 PYNetwork[31285:7400480] B
+//2021-08-04 12:58:07.367615+0800 PYNetwork[31285:7400480] @"NSDate"
+//2021-08-04 12:58:07.367771+0800 PYNetwork[31285:7400480] @"NSString"
+@interface TestModle:NSObject<PYObjectParseProtocol>{
+    int vint;
+    unsigned int vuint;
+    long vlong;
+    unsigned long vulong;
+    float vfloat;
+    double vdoubel;
+    bool vbool;
+    NSDate * vdate;
+    NSString * vstring;
+}
+
+@end
+
+@implementation TestModle
+
++(nullable NSDictionary *) pyObjectGetKeysType{
+    return @{
+        @"vint":[NSString stringWithFormat:@"%s", @encode(int)],
+        @"vuint":[NSString stringWithFormat:@"%s", @encode(unsigned int)],
+        @"vlong":[NSString stringWithFormat:@"%s", @encode(long)],
+        @"vulong":[NSString stringWithFormat:@"%s", @encode(unsigned long)],
+        @"vfloat":[NSString stringWithFormat:@"%s", @encode(float)],
+        @"vdoubel":[NSString stringWithFormat:@"%s", @encode(double)],
+    };
+}
+@end
+
 @interface AppDelegate ()
 
 @end
@@ -20,7 +57,10 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-
+    
+    TestModle * tm = [TestModle new];
+    [tm objectToDictionary];
+    
 //    PYNetUpload * upload = [PYNetUpload new];
 //    upload.url = @"http://www.baidu.com/aa";
 //    upload.params = @{@"key":@"value",@"key1":@"value2"};
