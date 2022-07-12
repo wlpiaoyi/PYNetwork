@@ -22,15 +22,15 @@
 //2021-08-04 12:58:07.367615+0800 PYNetwork[31285:7400480] @"NSDate"
 //2021-08-04 12:58:07.367771+0800 PYNetwork[31285:7400480] @"NSString"
 @interface TestModle:NSObject<PYObjectParseProtocol>{
-    int vint;
-    unsigned int vuint;
-    long vlong;
-    unsigned long vulong;
-    float vfloat;
-    double vdoubel;
-    bool vbool;
-    NSDate * vdate;
-    NSString * vstring;
+//    int vint;
+//    unsigned int vuint;
+//    long vlong;
+//    unsigned long vulong;
+//    float vfloat;
+//    double vdoubel;
+//    bool vbool;
+    @public NSDate * vdate;
+//    NSString * vstring;
 }
 
 @end
@@ -47,9 +47,18 @@
         @"vdoubel":[NSString stringWithFormat:@"%s", @encode(double)],
     };
 }
+
+-(nullable id) pyObjectArchiveWithValue:(nonnull NSObject *) value clazz:(nullable Class) clazz returnValue:(nullable id) returnValue{
+    if(clazz == [NSDate class]){
+        NSDate * d = value;
+        return @([d timeIntervalSince1970] * 1000);
+    }
+    return returnValue;
+}
 @end
 
 @interface AppDelegate ()
+kPNSNA PYNetworkReachabilityManager * nrm;
 
 @end
 
@@ -59,40 +68,44 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
     TestModle * tm = [TestModle new];
-    [tm objectToDictionary];
-    
-//    PYNetUpload * upload = [PYNetUpload new];
-//    upload.url = @"http://www.baidu.com/aa";
-//    upload.params = @{@"key":@"value",@"key1":@"value2"};
-//    upload.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
-//        NSLog(@"");
-//    };
-//    NSData * data = [@"aaa" toData];
-//    [upload resumeWithData:data fileName:@"photp.jpg" contentType:@"jpg"];
-//    [upload resume];
-    
-//    PYNetwork * network = [PYNetwork new];
-//    network.heads = @{@"Content-Type":@"text/xml;charset=utf-8",
-//                      @"Cache-Control":@"no-cache",
-//                      @"charset":@"UTF-8"};
-//    network.method = PYNET_HTTP_POST;
-//
-//    PYXmlDocument * xml = [PYXmlDocument instanceWithXmlString:@"<v:Envelope xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:d=\"http://www.w3.org/2001/XMLSchema\" xmlns:c=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:v=\"http://schemas.xmlsoap.org/soap/envelope/\"><v:Header /><v:Body><n0:searchBook id=\"o0\" c:root=\"1\" xmlns:n0=\"http://service/\"><keyword i:type=\"d:string\"></keyword><type i:type=\"d:int\">0</type><sortByYear i:type=\"d:int\">0</sortByYear><startIndex i:type=\"d:int\">1</startIndex><endIndex i:type=\"d:int\">10</endIndex></n0:searchBook></v:Body></v:Envelope>"];
-//    NSString * xmlStr = [xml.rootElement stringValue];
-//    network.params = xmlStr;
-//
-//
-//    network.url = @"http://zysc.souips.com/zltreader/service/readerService?wsdl";
-//    network.blockComplete = ^(id  _Nullable data, NSURLResponse * _Nullable response, PYNetwork * _Nonnull target) {
-//        PYXmlDocument * xml = nil;
-//        if([data isKindOfClass:[NSData class]]){
-//            NSString * args = [((NSData *) data) toString];
-//            xml = [PYXmlDocument instanceWithXmlString:args];
-//        }
-//        [xml stringValue];
-//        NSLog(@"");
-//    };
-//    [network resume];
+    tm->vdate = [NSDate date];
+    id obj = [tm objectToDictionary];
+    NSLog(@"");
+    self.nrm = [PYNetworkReachabilityManager sharedManager];
+    [self.nrm setReachabilityStatusChangeBlock:^(PYNetworkReachabilityStatus status) {
+        switch(status) {
+
+        case PYNetworkReachabilityStatusNotReachable:{
+
+        NSLog(@"无网络");
+
+        break;
+
+        }
+
+        case PYNetworkReachabilityStatusReachableViaWiFi:{
+
+        NSLog(@"WiFi网络");
+
+        break;
+
+        }
+
+        case PYNetworkReachabilityStatusReachableViaWWAN:{
+
+        NSLog(@"无线网络");
+
+        break;
+
+        }
+
+        default:
+
+        break;
+
+        }
+    }];
+    [self.nrm startMonitoring];
     return YES;
 }
 
